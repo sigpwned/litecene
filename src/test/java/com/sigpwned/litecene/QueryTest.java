@@ -27,7 +27,7 @@ import com.sigpwned.litecene.query.parse.QueryParser;
 public class QueryTest {
   @Test
   public void toStringTest() {
-    final String input = "hello OR world AND (foobar AND NOT quux pants)";
+    final String input = "hello OR world AND (foobar AND NOT quux pants) AND \"alpha bravo\"~10";
     final String output = new QueryParser().query(input).toString();
     assertThat(input, is(output));
   }
