@@ -17,7 +17,10 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene;
+package com.sigpwned.litecene.exception;
 
-public abstract class Query {
+import com.sigpwned.litecene.LiteceneException;
+
+public class UnrecognizedTokenException extends LiteceneException {
+  private static final long serialVersionUID = -6405764486572531860L;
 }

@@ -17,7 +17,12 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene;
+package com.sigpwned.litecene.query.parse.token;
 
-public abstract class Query {
+import com.sigpwned.litecene.query.parse.Token;
+
+public class TermToken extends Token {
+  public TermToken(String text) {
+    super(Type.TERM, text);
+  }
 }

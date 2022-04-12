@@ -1,7 +1,29 @@
-package com.sigpwned.litecene.parse;
+/*-
+ * =================================LICENSE_START==================================
+ * litecene
+ * ====================================SECTION=====================================
+ * Copyright (C) 2022 Andy Boothe
+ * ====================================SECTION=====================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ==================================LICENSE_END===================================
+ */
+package com.sigpwned.litecene.query.parse;
 
 import com.sigpwned.litecene.exception.EofException;
+import com.sigpwned.litecene.exception.InvalidProximityException;
 import com.sigpwned.litecene.exception.UnrecognizedCharacterException;
+import com.sigpwned.litecene.query.parse.token.StringToken;
+import com.sigpwned.litecene.query.parse.token.TermToken;
 
 public class QueryTokenizer {
   public static QueryTokenizer forString(String s) {
@@ -32,6 +54,7 @@ public class QueryTokenizer {
   private static final int LPAREN = '(';
   private static final int RPAREN = ')';
   private static final int QUOTE = '"';
+  private static final int TILDE = '~';
 
   private static final String AND = "AND";
   private static final String OR = "OR";
@@ -49,7 +72,7 @@ public class QueryTokenizer {
         return Token.LPAREN;
       case RPAREN:
         return Token.RPAREN;
-      case QUOTE:
+      case QUOTE: {
         buf.setLength(0);
         while (iterator.hasNext() && iterator.peek() != QUOTE) {
           buf.appendCodePoint(iterator.next());
@@ -58,7 +81,31 @@ public class QueryTokenizer {
           throw new EofException();
         if (iterator.next() != QUOTE)
           throw new AssertionError("expected quote");
-        return new Token(Token.Type.STRING, buf.toString());
+
+        String text = buf.toString();
+
+        Integer proximity;
+        if (iterator.peek() == TILDE) {
+          iterator.next(); // TILDE
+          if (!Character.isDigit(iterator.peek()))
+            throw new InvalidProximityException();
+
+          buf.setLength(0);
+          do {
+            buf.appendCodePoint(iterator.next());
+          } while (Character.isDigit(iterator.peek()));
+
+          try {
+            proximity = Integer.parseInt(buf.toString());
+          } catch (NumberFormatException e) {
+            throw new InvalidProximityException();
+          }
+        } else {
+          proximity = null;
+        }
+
+        return new StringToken(text, proximity);
+      }
       default: {
         if (!termy(iterator.peek()))
           throw new UnrecognizedCharacterException();
@@ -78,7 +125,7 @@ public class QueryTokenizer {
           case NOT:
             return Token.NOT;
           default:
-            return new Token(Token.Type.TERM, text);
+            return new TermToken(text);
         }
       }
     }
@@ -87,7 +134,7 @@ public class QueryTokenizer {
   private boolean termy(int ch) {
     if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9'))
       return true;
-    if(ch==LPAREN || ch==RPAREN || ch==QUOTE)
+    if (ch == LPAREN || ch == RPAREN || ch == QUOTE)
       return false;
     switch (Character.getType(ch)) {
       // Letter ///////////////////////////////////////////////////////////////
