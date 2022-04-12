@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import com.sigpwned.litecene.Query;
+import com.sigpwned.litecene.exception.UnparsedTokenException;
 import com.sigpwned.litecene.exception.EofException;
 import com.sigpwned.litecene.exception.UnmatchedParenthesisException;
 import com.sigpwned.litecene.exception.UnrecognizedTokenException;
@@ -35,10 +36,16 @@ import com.sigpwned.litecene.query.OrQuery;
 import com.sigpwned.litecene.query.ParenQuery;
 import com.sigpwned.litecene.query.StringQuery;
 import com.sigpwned.litecene.query.TermQuery;
+import com.sigpwned.litecene.query.parse.token.StringToken;
+import com.sigpwned.litecene.query.parse.token.TermToken;
 
 public class QueryParser {
   public Query query(String s) {
-    return query1(QueryTokenizer.forString(s));
+    QueryTokenizer ts = QueryTokenizer.forString(s);
+    Query result = query1(ts);
+    if (ts.peek().getType() != Token.Type.EOF)
+      throw new UnparsedTokenException();
+    return result;
   }
 
   // X OR Y OR Z ...
@@ -109,10 +116,15 @@ public class QueryParser {
   private Query atom(QueryTokenizer ts) {
     Token t = ts.next();
     switch (t.getType()) {
-      case TERM:
-        return new TermQuery(t.getText());
-      case STRING:
-        return new StringQuery(t.getText(), null);
+      case TERM: {
+        TermToken tt = t.asTerm();
+        return new TermQuery(tt.getText());
+      }
+      case STRING: {
+        StringToken st = t.asString();
+        return new StringQuery(st.getText(),
+            st.getProxmity().isPresent() ? st.getProxmity().getAsInt() : null);
+      }
       case LPAREN: {
         Query result = query1(ts);
         if (ts.next().getType() != Token.Type.RPAREN)
