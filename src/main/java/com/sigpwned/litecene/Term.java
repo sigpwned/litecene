@@ -72,10 +72,6 @@ public class Term {
     return wildcard;
   }
 
-  public boolean isVacuous() {
-    return getText().length() < 3 && !isWildcard();
-  }
-
   @Override
   @Generated
   public int hashCode() {

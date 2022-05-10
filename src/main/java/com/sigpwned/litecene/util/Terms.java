@@ -17,50 +17,18 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.query;
+package com.sigpwned.litecene.util;
 
-import java.util.Objects;
-import com.sigpwned.litecene.Query;
-import com.sigpwned.litecene.linting.Generated;
+import com.sigpwned.litecene.Term;
 
-public class ParenQuery extends Query {
-  private final Query child;
+public final class Terms {
+  private Terms() {}
 
-  public ParenQuery(Query child) {
-    if (child == null)
-      throw new NullPointerException();
-    this.child = child;
+  public static boolean isVacuous(Term t) {
+    return t.getText().length() < 3 && !t.isWildcard();
   }
 
-  /**
-   * @return the child
-   */
-  @Generated
-  public Query getChild() {
-    return child;
-  }
-
-  @Override
-  @Generated
-  public int hashCode() {
-    return Objects.hash(child);
-  }
-
-  @Override
-  @Generated
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    ParenQuery other = (ParenQuery) obj;
-    return Objects.equals(child, other.child);
-  }
-
-  @Override
-  public String toString() {
-    return "(" + getChild().toString() + ")";
+  public static boolean isVacuous(String text, boolean wildcard) {
+    return text.length() < 3 && !wildcard;
   }
 }

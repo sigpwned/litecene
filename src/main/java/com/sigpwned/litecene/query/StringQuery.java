@@ -32,11 +32,13 @@ public class StringQuery extends Query {
   private final List<Term> terms;
   private final Integer proximity;
 
+  public StringQuery(List<Term> terms, OptionalInt proximity) {
+    this(terms, proximity.isPresent() ? proximity.getAsInt() : null);
+  }
+
   public StringQuery(List<Term> terms, Integer proximity) {
     if (terms == null)
       throw new NullPointerException();
-    if (terms.isEmpty())
-      throw new IllegalArgumentException("no terms");
     this.terms = unmodifiableList(terms);
     this.proximity = proximity;
   }
@@ -54,16 +56,6 @@ public class StringQuery extends Query {
    */
   public OptionalInt getProximity() {
     return proximity != null ? OptionalInt.of(proximity.intValue()) : OptionalInt.empty();
-  }
-
-  @Override
-  public boolean isVacuous() {
-    return getTerms().stream().allMatch(Term::isVacuous);
-  }
-
-  @Override
-  public Query simplify() {
-    return isVacuous() ? VacuousQuery.INSTANCE : this;
   }
 
   @Override

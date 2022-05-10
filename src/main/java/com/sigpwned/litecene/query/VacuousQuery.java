@@ -23,14 +23,4 @@ import com.sigpwned.litecene.Query;
 
 public class VacuousQuery extends Query {
   public static VacuousQuery INSTANCE = new VacuousQuery();
-
-  @Override
-  public boolean isVacuous() {
-    return true;
-  }
-
-  @Override
-  public Query simplify() {
-    return this;
-  }
 }

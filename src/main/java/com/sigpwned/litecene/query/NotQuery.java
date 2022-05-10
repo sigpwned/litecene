@@ -27,7 +27,7 @@ public class NotQuery extends Query {
   private final Query child;
 
   public NotQuery(Query child) {
-    if(child == null)
+    if (child == null)
       throw new NullPointerException();
     this.child = child;
   }
@@ -38,22 +38,6 @@ public class NotQuery extends Query {
   @Generated
   public Query getChild() {
     return child;
-  }
-
-  @Override
-  public boolean isVacuous() {
-    return getChild().isVacuous();
-  }
-
-  @Override
-  public Query simplify() {
-    Query c = getChild().simplify();
-    if (c.isVacuous())
-      return VacuousQuery.INSTANCE;
-    else if (c.equals(child))
-      return this;
-    else
-      return new NotQuery(c);
   }
 
   @Override

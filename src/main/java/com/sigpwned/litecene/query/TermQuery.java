@@ -51,16 +51,6 @@ public class TermQuery extends Query {
   }
 
   @Override
-  public boolean isVacuous() {
-    return getText().length() < 3 && !isWildcard();
-  }
-
-  @Override
-  public Query simplify() {
-    return isVacuous() ? VacuousQuery.INSTANCE : this;
-  }
-
-  @Override
   @Generated
   public int hashCode() {
     return Objects.hash(text, wildcard);
