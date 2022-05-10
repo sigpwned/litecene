@@ -17,7 +17,7 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.query.parse;
+package com.sigpwned.litecene.util;
 
 public class CodePointIterator {
   public static final int EOF = -1;
@@ -41,7 +41,7 @@ public class CodePointIterator {
   }
 
   public int peek() {
-    return hasNext() ? getText().codePointAt(index) : -1;
+    return hasNext() ? getText().codePointAt(index) : EOF;
   }
 
   public int next() {

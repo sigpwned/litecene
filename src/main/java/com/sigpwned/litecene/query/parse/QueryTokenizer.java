@@ -19,23 +19,34 @@
  */
 package com.sigpwned.litecene.query.parse;
 
+import static java.util.stream.Collectors.toList;
+import java.util.Locale;
+import java.util.regex.Pattern;
 import com.sigpwned.litecene.exception.EofException;
 import com.sigpwned.litecene.exception.InvalidProximityException;
 import com.sigpwned.litecene.exception.UnrecognizedCharacterException;
 import com.sigpwned.litecene.query.parse.token.StringToken;
 import com.sigpwned.litecene.query.parse.token.TermToken;
+import com.sigpwned.litecene.util.CodePointIterator;
+import com.sigpwned.litecene.util.NormalizedText;
 
 public class QueryTokenizer {
   public static QueryTokenizer forString(String s) {
-    return new QueryTokenizer(s);
+    return forNormalizedText(NormalizedText.normalize(s));
   }
+
+  public static QueryTokenizer forNormalizedText(NormalizedText normalizedText) {
+    return new QueryTokenizer(normalizedText);
+  }
+
+  private static final Pattern SPACE = Pattern.compile("[ ]+");
 
   private Token next;
   private CodePointIterator iterator;
   private StringBuilder buf;
 
-  public QueryTokenizer(String s) {
-    this.iterator = CodePointIterator.forString(s);
+  public QueryTokenizer(NormalizedText normalizedText) {
+    this.iterator = CodePointIterator.forString(normalizedText.getNormalizedText());
     this.buf = new StringBuilder();
   }
 
@@ -55,6 +66,7 @@ public class QueryTokenizer {
   private static final int RPAREN = ')';
   private static final int QUOTE = '"';
   private static final int TILDE = '~';
+  private static final int STAR = '*';
 
   private static final String AND = "AND";
   private static final String OR = "OR";
@@ -75,7 +87,7 @@ public class QueryTokenizer {
       case QUOTE: {
         buf.setLength(0);
         while (iterator.hasNext() && iterator.peek() != QUOTE) {
-          buf.appendCodePoint(iterator.next());
+          buf.appendCodePoint(transliterate(iterator.next()));
         }
         if (!iterator.hasNext())
           throw new EofException();
@@ -100,20 +112,24 @@ public class QueryTokenizer {
           } catch (NumberFormatException e) {
             throw new InvalidProximityException();
           }
+
+          if (proximity == 0)
+            throw new InvalidProximityException();
         } else {
           proximity = null;
         }
 
-        return new StringToken(text, proximity);
+        return new StringToken(SPACE.splitAsStream(text.strip()).filter(t -> !t.isEmpty())
+            .map(t -> standardize(t)).collect(toList()), proximity);
       }
       default: {
-        if (!termy(iterator.peek()))
+        if (!termy(ch))
           throw new UnrecognizedCharacterException();
 
         buf.setLength(0);
-        buf.appendCodePoint(ch);
+        buf.appendCodePoint(transliterate(ch));
         while (iterator.hasNext() && termy(iterator.peek())) {
-          buf.appendCodePoint(iterator.next());
+          buf.appendCodePoint(transliterate(iterator.next()));
         }
 
         String text = buf.toString();
@@ -125,76 +141,54 @@ public class QueryTokenizer {
           case NOT:
             return Token.NOT;
           default:
-            return new TermToken(text);
+
+            return new TermToken(standardize(text));
         }
       }
     }
   }
 
+  private String standardize(String s) {
+    return s.toLowerCase(Locale.ENGLISH);
+  }
+
+  private int transliterate(int ch) {
+    if (ch >= 'a' && ch <= 'z') {
+      return ch;
+    } else if (ch >= 'A' && ch <= 'Z') {
+      return ch;
+    } else if (ch >= '0' && ch <= '9') {
+      return ch;
+    } else {
+      switch (ch) {
+        case STAR:
+        case LPAREN:
+        case RPAREN:
+        case QUOTE:
+        case TILDE:
+          return ch;
+        default:
+          return ' ';
+      }
+    }
+  }
+
   private boolean termy(int ch) {
-    if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9'))
-      return true;
-    if (ch == LPAREN || ch == RPAREN || ch == QUOTE)
-      return false;
-    switch (Character.getType(ch)) {
-      // Letter ///////////////////////////////////////////////////////////////
-      case Character.LOWERCASE_LETTER: // Ll
-      case Character.MODIFIER_LETTER: // Lm
-      case Character.OTHER_LETTER: // Lo
-      case Character.TITLECASE_LETTER: // Lt
-      case Character.UPPERCASE_LETTER: // Lu
+    switch (ch) {
+      case STAR:
         return true;
-
-      // Mark /////////////////////////////////////////////////////////////////
-      case Character.COMBINING_SPACING_MARK: // Mc
-      case Character.ENCLOSING_MARK: // Me
-      case Character.NON_SPACING_MARK: // Mn
-        return true;
-
-      // Number ///////////////////////////////////////////////////////////////
-      case Character.DECIMAL_DIGIT_NUMBER: // Nd
-      case Character.LETTER_NUMBER: // Nl
-      case Character.OTHER_NUMBER: // No
-        return true;
-
-      // Punctuation //////////////////////////////////////////////////////////
-      case Character.CONNECTOR_PUNCTUATION: // Pc
-      case Character.DASH_PUNCTUATION: // Pd
-      case Character.END_PUNCTUATION: // Pe
-      case Character.FINAL_QUOTE_PUNCTUATION: // Pf
-      case Character.INITIAL_QUOTE_PUNCTUATION: // Pi
-      case Character.OTHER_PUNCTUATION: // Po
-      case Character.START_PUNCTUATION: // Ps
-        return true;
-
-      // Control //////////////////////////////////////////////////////////////
-      case Character.CONTROL: // Cc
-      case Character.FORMAT: // Cf
-      case Character.UNASSIGNED: // Cn
-      case Character.SURROGATE: // Cs
+      case LPAREN:
+      case RPAREN:
+      case QUOTE:
+      case TILDE:
         return false;
-
-      // Symbol ///////////////////////////////////////////////////////////////
-      case Character.CURRENCY_SYMBOL: // Sc
-      case Character.MODIFIER_SYMBOL: // Sk
-      case Character.MATH_SYMBOL: // Sm
-      case Character.OTHER_SYMBOL: // So
-        return true;
-
-      // Separator ////////////////////////////////////////////////////////////
-      case Character.LINE_SEPARATOR: // Zl
-      case Character.PARAGRAPH_SEPARATOR: // Zp
-      case Character.SPACE_SEPARATOR: // Zs
-        return false;
-
-      // I have no idea. //////////////////////////////////////////////////////
       default:
-        return false;
+        return !Character.isWhitespace(transliterate(ch));
     }
   }
 
   private void ws() {
-    while (Character.isWhitespace(iterator.peek()))
+    while (iterator.hasNext() && Character.isWhitespace(transliterate(iterator.peek())))
       iterator.next();
   }
 }

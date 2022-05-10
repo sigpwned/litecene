@@ -19,47 +19,13 @@
  */
 package com.sigpwned.litecene.query;
 
-import java.util.Objects;
 import com.sigpwned.litecene.Query;
 
-public class NotQuery extends Query {
-  private final Query child;
-
-  public NotQuery(Query child) {
-    this.child = child;
-  }
-
-  /**
-   * @return the child
-   */
-  public Query getChild() {
-    return child;
-  }
+public class VacuousQuery extends Query {
+  public static VacuousQuery INSTANCE = new VacuousQuery();
 
   @Override
   public boolean isVacuous() {
-    return getChild().isVacuous();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(child);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    NotQuery other = (NotQuery) obj;
-    return Objects.equals(child, other.child);
-  }
-
-  @Override
-  public String toString() {
-    return "NOT " + getChild().toString();
+    return true;
   }
 }

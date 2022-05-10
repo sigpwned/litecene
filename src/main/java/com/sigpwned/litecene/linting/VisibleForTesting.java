@@ -17,49 +17,17 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.query;
+package com.sigpwned.litecene.linting;
 
-import java.util.Objects;
-import com.sigpwned.litecene.Query;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.CLASS;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-public class NotQuery extends Query {
-  private final Query child;
+@Retention(CLASS)
+@Target({FIELD, METHOD, CONSTRUCTOR})
+public @interface VisibleForTesting {
 
-  public NotQuery(Query child) {
-    this.child = child;
-  }
-
-  /**
-   * @return the child
-   */
-  public Query getChild() {
-    return child;
-  }
-
-  @Override
-  public boolean isVacuous() {
-    return getChild().isVacuous();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(child);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    NotQuery other = (NotQuery) obj;
-    return Objects.equals(child, other.child);
-  }
-
-  @Override
-  public String toString() {
-    return "NOT " + getChild().toString();
-  }
 }

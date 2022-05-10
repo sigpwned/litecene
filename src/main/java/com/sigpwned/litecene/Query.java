@@ -20,4 +20,9 @@
 package com.sigpwned.litecene;
 
 public abstract class Query {
+  /**
+   * A vacuous query does not apply a meaningful filter to accept or reject posts. For example: a
+   * term query of the empty string.
+   */
+  public abstract boolean isVacuous();
 }

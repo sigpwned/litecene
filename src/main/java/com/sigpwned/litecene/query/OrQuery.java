@@ -42,6 +42,11 @@ public class OrQuery extends Query {
   }
 
   @Override
+  public boolean isVacuous() {
+    return getChildren().stream().allMatch(Query::isVacuous);
+  }
+
+  @Override
   public int hashCode() {
     return Objects.hash(children);
   }

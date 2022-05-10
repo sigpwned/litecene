@@ -19,24 +19,26 @@
  */
 package com.sigpwned.litecene.query;
 
+import static java.util.Collections.unmodifiableList;
+import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
 import com.sigpwned.litecene.Query;
 
 public class StringQuery extends Query {
-  private final String text;
+  private final List<String> terms;
   private final Integer proximity;
 
-  public StringQuery(String text, Integer proximity) {
-    this.text = text;
+  public StringQuery(List<String> terms, Integer proximity) {
+    this.terms = unmodifiableList(terms);
     this.proximity = proximity;
   }
 
   /**
    * @return the text
    */
-  public String getText() {
-    return text;
+  public List<String> getTerms() {
+    return terms;
   }
 
   /**
@@ -47,8 +49,13 @@ public class StringQuery extends Query {
   }
 
   @Override
+  public boolean isVacuous() {
+    return getTerms().isEmpty();
+  }
+
+  @Override
   public int hashCode() {
-    return Objects.hash(proximity, text);
+    return Objects.hash(proximity, terms);
   }
 
   @Override
@@ -60,15 +67,14 @@ public class StringQuery extends Query {
     if (getClass() != obj.getClass())
       return false;
     StringQuery other = (StringQuery) obj;
-    return Objects.equals(proximity, other.proximity) && Objects.equals(text, other.text);
+    return Objects.equals(proximity, other.proximity) && Objects.equals(terms, other.terms);
   }
 
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder().append("\"").append(getText()).append("\"");
-    if (proximity != null) {
-      result.append("~").append(proximity);
-    }
-    return result.toString();
+    String result = "\"" + String.join(" ", terms) + "\"";
+    if (proximity != null)
+      result = result + "~" + proximity;
+    return result;
   }
 }

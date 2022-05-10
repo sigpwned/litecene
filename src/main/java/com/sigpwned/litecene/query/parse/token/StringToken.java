@@ -19,16 +19,34 @@
  */
 package com.sigpwned.litecene.query.parse.token;
 
+import static java.util.Collections.unmodifiableList;
+import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
 import com.sigpwned.litecene.query.parse.Token;
 
 public class StringToken extends Token {
+  private final List<String> terms;
   private final Integer proximity;
 
-  public StringToken(String text, Integer proximity) {
-    super(Type.STRING, text);
+  public StringToken(List<String> terms, Integer proximity) {
+    super(Type.STRING, String.join(" ", terms));
+    this.terms = unmodifiableList(terms);
     this.proximity = proximity;
+  }
+
+  /**
+   * @return the terms
+   */
+  public List<String> getTerms() {
+    return terms;
+  }
+
+  /**
+   * @return the proximity
+   */
+  public Integer getProximity() {
+    return proximity;
   }
 
   public OptionalInt getProxmity() {
@@ -39,7 +57,7 @@ public class StringToken extends Token {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + Objects.hash(proximity);
+    result = prime * result + Objects.hash(proximity, terms);
     return result;
   }
 
@@ -52,13 +70,14 @@ public class StringToken extends Token {
     if (getClass() != obj.getClass())
       return false;
     StringToken other = (StringToken) obj;
-    return Objects.equals(proximity, other.proximity);
+    return Objects.equals(proximity, other.proximity) && Objects.equals(terms, other.terms);
   }
 
   @Override
   public String toString() {
-    return "StringToken [text=" + getText() + ", proximity=" + proximity + "]";
+    final int maxLen = 10;
+    return "StringToken [terms="
+        + (terms != null ? terms.subList(0, Math.min(terms.size(), maxLen)) : null) + ", proximity="
+        + proximity + "]";
   }
-
-
 }

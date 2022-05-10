@@ -37,6 +37,11 @@ public class ParenQuery extends Query {
   }
 
   @Override
+  public boolean isVacuous() {
+    return getChild().isVacuous();
+  }
+
+  @Override
   public int hashCode() {
     return Objects.hash(child);
   }

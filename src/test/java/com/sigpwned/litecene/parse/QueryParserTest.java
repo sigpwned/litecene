@@ -31,34 +31,35 @@ import com.sigpwned.litecene.query.TermQuery;
 import com.sigpwned.litecene.query.parse.QueryParser;
 
 public class QueryParserTest {
-  /**
-   * We should handle a single term
-   */
   @Test
-  public void test1() {
+  public void shouldParseSingleTerm() {
     Query q = new QueryParser().query("hello");
     assertThat(q, is(new TermQuery("hello")));
   }
 
-  /**
-   * We should handle boolean queries
-   */
   @Test
-  public void test2() {
+  public void shouldParseBooleanQuery() {
     Query q = new QueryParser().query("hello OR world AND foobar");
     assertThat(q, is(new OrQuery(asList(new TermQuery("hello"),
         new AndQuery(asList(new TermQuery("world"), new TermQuery("foobar")))))));
   }
 
-  /**
-   * We should handle lists
-   */
   @Test
-  public void test3() {
+  public void shouldParseTermLists() {
     Query q = new QueryParser().query("hello world AND foobar");
     assertThat(q,
         is(new AndQuery(
             asList(new ListQuery(asList(new TermQuery("hello"), new TermQuery("world"))),
                 new TermQuery("foobar")))));
+  }
+
+  @Test
+  public void shouldTolerateDroppedCharacters() {
+    Query q = new QueryParser().query("hello's 南无阿弥陀佛 world AND foobar");
+    assertThat(q,
+        is(new AndQuery(asList(
+            new ListQuery(
+                asList(new TermQuery("hello"), new TermQuery("s"), new TermQuery("world"))),
+            new TermQuery("foobar")))));
   }
 }

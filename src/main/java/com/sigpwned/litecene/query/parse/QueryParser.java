@@ -25,9 +25,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import com.sigpwned.litecene.Query;
-import com.sigpwned.litecene.exception.UnparsedTokenException;
 import com.sigpwned.litecene.exception.EofException;
 import com.sigpwned.litecene.exception.UnmatchedParenthesisException;
+import com.sigpwned.litecene.exception.UnparsedTokenException;
 import com.sigpwned.litecene.exception.UnrecognizedTokenException;
 import com.sigpwned.litecene.query.AndQuery;
 import com.sigpwned.litecene.query.ListQuery;
@@ -122,7 +122,7 @@ public class QueryParser {
       }
       case STRING: {
         StringToken st = t.asString();
-        return new StringQuery(st.getText(),
+        return new StringQuery(st.getTerms(),
             st.getProxmity().isPresent() ? st.getProxmity().getAsInt() : null);
       }
       case LPAREN: {

@@ -33,9 +33,9 @@ import com.sigpwned.litecene.query.parse.token.TermToken;
 
 public class QueryTokenizerTest {
   @Test
-  public void tokensTest() {
-    QueryTokenizer ts =
-        new QueryTokenizer("  hello world AND NOT OR ( ) 1234 \"yo dawg\" \"proxim ity\"~10  ");
+  public void shouldParseAllTokenTypes() {
+    QueryTokenizer ts = QueryTokenizer
+        .forString("  hello world AND NOT OR ( ) 1234 \"yo dawg\" \"proxim ity\"~10  ");
 
     List<Token> tokens = new ArrayList<>();
     do {
@@ -44,14 +44,34 @@ public class QueryTokenizerTest {
 
     assertThat(tokens,
         is(asList(new TermToken("hello"), new TermToken("world"), Token.AND, Token.NOT, Token.OR,
-            Token.LPAREN, Token.RPAREN, new TermToken("1234"), new StringToken("yo dawg", null),
-            new StringToken("proxim ity", 10), Token.EOF)));
+            Token.LPAREN, Token.RPAREN, new TermToken("1234"),
+            new StringToken(asList("yo", "dawg"), null),
+            new StringToken(asList("proxim", "ity"), 10), Token.EOF)));
+
+  }
+
+  @Test
+  public void shouldSplitOnNonAlphanumCharacters() {
+    QueryTokenizer ts = QueryTokenizer
+        .forString(" It's a hard knock life, for us. Ît’š á härd kñōćk lïfé, fór üś! ");
+
+    List<Token> tokens = new ArrayList<>();
+    do {
+      tokens.add(ts.next());
+    } while (tokens.get(tokens.size() - 1).getType() != Token.Type.EOF);
+
+    assertThat(tokens,
+        is(asList(new TermToken("it"), new TermToken("s"), new TermToken("a"),
+            new TermToken("hard"), new TermToken("knock"), new TermToken("life"),
+            new TermToken("for"), new TermToken("us"), new TermToken("it"), new TermToken("s"),
+            new TermToken("a"), new TermToken("hard"), new TermToken("knock"),
+            new TermToken("life"), new TermToken("for"), new TermToken("us"), Token.EOF)));
 
   }
 
   @Test(expected = EofException.class)
-  public void unclosedString() {
-    QueryTokenizer ts = new QueryTokenizer("\"this string is not closed.");
+  public void shouldFailToParseUnclosedString() {
+    QueryTokenizer ts = QueryTokenizer.forString("\"this string is not closed.");
     for (Token t = ts.next(); t.getType() != Token.Type.EOF; t = ts.next()) {
       // Ignore...
     }
