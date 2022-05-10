@@ -21,17 +21,21 @@ package com.sigpwned.litecene.query;
 
 import java.util.Objects;
 import com.sigpwned.litecene.Query;
+import com.sigpwned.litecene.linting.Generated;
 
 public class ParenQuery extends Query {
   private final Query child;
 
   public ParenQuery(Query child) {
+    if (child == null)
+      throw new NullPointerException();
     this.child = child;
   }
 
   /**
    * @return the child
    */
+  @Generated
   public Query getChild() {
     return child;
   }
@@ -57,11 +61,13 @@ public class ParenQuery extends Query {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(child);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;

@@ -25,11 +25,14 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.Objects;
 import com.sigpwned.litecene.Query;
+import com.sigpwned.litecene.linting.Generated;
 
 public class ListQuery extends Query {
   private final List<Query> children;
 
   public ListQuery(List<Query> children) {
+    if (children == null)
+      throw new NullPointerException();
     if (children.isEmpty())
       throw new IllegalArgumentException("no children");
     this.children = unmodifiableList(children);
@@ -38,6 +41,7 @@ public class ListQuery extends Query {
   /**
    * @return the children
    */
+  @Generated
   public List<Query> getChildren() {
     return children;
   }
@@ -62,11 +66,13 @@ public class ListQuery extends Query {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(children);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;

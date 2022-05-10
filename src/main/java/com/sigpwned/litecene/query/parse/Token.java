@@ -20,6 +20,7 @@
 package com.sigpwned.litecene.query.parse;
 
 import java.util.Objects;
+import com.sigpwned.litecene.linting.Generated;
 import com.sigpwned.litecene.query.parse.token.StringToken;
 import com.sigpwned.litecene.query.parse.token.TermToken;
 
@@ -50,6 +51,10 @@ public abstract class Token {
   private final String text;
 
   public Token(Type type, String text) {
+    if (type == null)
+      throw new NullPointerException();
+    if (text == null)
+      throw new NullPointerException();
     this.type = type;
     this.text = text;
   }
@@ -65,6 +70,7 @@ public abstract class Token {
   /**
    * @return the type
    */
+  @Generated
   public Type getType() {
     return type;
   }
@@ -72,16 +78,19 @@ public abstract class Token {
   /**
    * @return the text
    */
+  @Generated
   public String getText() {
     return text;
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(text, type);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -94,6 +103,7 @@ public abstract class Token {
   }
 
   @Override
+  @Generated
   public String toString() {
     return "Token [type=" + type + ", text=" + text + "]";
   }

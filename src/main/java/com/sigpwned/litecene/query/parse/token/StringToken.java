@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
 import com.sigpwned.litecene.Term;
+import com.sigpwned.litecene.linting.Generated;
 import com.sigpwned.litecene.query.parse.Token;
 
 public class StringToken extends Token {
@@ -40,6 +41,7 @@ public class StringToken extends Token {
   /**
    * @return the terms
    */
+  @Generated
   public List<Term> getTerms() {
     return terms;
   }
@@ -47,6 +49,7 @@ public class StringToken extends Token {
   /**
    * @return the proximity
    */
+  @Generated
   public Integer getProximity() {
     return proximity;
   }
@@ -56,6 +59,7 @@ public class StringToken extends Token {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -64,6 +68,7 @@ public class StringToken extends Token {
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -76,6 +81,7 @@ public class StringToken extends Token {
   }
 
   @Override
+  @Generated
   public String toString() {
     final int maxLen = 10;
     return "StringToken [terms="

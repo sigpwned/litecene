@@ -25,11 +25,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import com.sigpwned.litecene.Query;
+import com.sigpwned.litecene.linting.Generated;
 
 public class OrQuery extends Query {
   private final List<Query> children;
 
   public OrQuery(List<Query> children) {
+    if (children == null)
+      throw new NullPointerException();
     if (children.size() < 2)
       throw new IllegalArgumentException("not enough children");
     this.children = unmodifiableList(children);
@@ -38,6 +41,7 @@ public class OrQuery extends Query {
   /**
    * @return the children
    */
+  @Generated
   public List<Query> getChildren() {
     return children;
   }
@@ -62,11 +66,13 @@ public class OrQuery extends Query {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(children);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;

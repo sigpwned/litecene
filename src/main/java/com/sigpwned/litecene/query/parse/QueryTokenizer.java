@@ -21,6 +21,7 @@ package com.sigpwned.litecene.query.parse;
 
 import static java.util.stream.Collectors.toList;
 import java.util.regex.Pattern;
+import com.sigpwned.litecene.NormalizedText;
 import com.sigpwned.litecene.Term;
 import com.sigpwned.litecene.exception.EofException;
 import com.sigpwned.litecene.exception.InvalidProximityException;
@@ -28,7 +29,6 @@ import com.sigpwned.litecene.exception.UnrecognizedCharacterException;
 import com.sigpwned.litecene.query.parse.token.StringToken;
 import com.sigpwned.litecene.query.parse.token.TermToken;
 import com.sigpwned.litecene.util.CodePointIterator;
-import com.sigpwned.litecene.util.NormalizedText;
 
 public class QueryTokenizer {
   public static QueryTokenizer forString(String s) {

@@ -22,6 +22,7 @@ package com.sigpwned.litecene;
 import java.util.Locale;
 import java.util.Objects;
 import com.sigpwned.litecene.exception.InvalidWildcardException;
+import com.sigpwned.litecene.linting.Generated;
 
 public class Term {
   public static Term fromString(String text) {
@@ -58,6 +59,7 @@ public class Term {
   /**
    * @return the text
    */
+  @Generated
   public String getText() {
     return text;
   }
@@ -65,6 +67,7 @@ public class Term {
   /**
    * @return the wildcard
    */
+  @Generated
   public boolean isWildcard() {
     return wildcard;
   }
@@ -74,11 +77,13 @@ public class Term {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(text, wildcard);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;

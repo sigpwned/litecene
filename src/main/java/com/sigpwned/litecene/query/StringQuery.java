@@ -26,12 +26,17 @@ import java.util.Objects;
 import java.util.OptionalInt;
 import com.sigpwned.litecene.Query;
 import com.sigpwned.litecene.Term;
+import com.sigpwned.litecene.linting.Generated;
 
 public class StringQuery extends Query {
   private final List<Term> terms;
   private final Integer proximity;
 
   public StringQuery(List<Term> terms, Integer proximity) {
+    if (terms == null)
+      throw new NullPointerException();
+    if (terms.isEmpty())
+      throw new IllegalArgumentException("no terms");
     this.terms = unmodifiableList(terms);
     this.proximity = proximity;
   }
@@ -39,6 +44,7 @@ public class StringQuery extends Query {
   /**
    * @return the text
    */
+  @Generated
   public List<Term> getTerms() {
     return terms;
   }
@@ -61,11 +67,13 @@ public class StringQuery extends Query {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(proximity, terms);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;

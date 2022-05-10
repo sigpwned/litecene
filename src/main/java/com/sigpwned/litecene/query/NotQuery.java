@@ -21,17 +21,21 @@ package com.sigpwned.litecene.query;
 
 import java.util.Objects;
 import com.sigpwned.litecene.Query;
+import com.sigpwned.litecene.linting.Generated;
 
 public class NotQuery extends Query {
   private final Query child;
 
   public NotQuery(Query child) {
+    if(child == null)
+      throw new NullPointerException();
     this.child = child;
   }
 
   /**
    * @return the child
    */
+  @Generated
   public Query getChild() {
     return child;
   }

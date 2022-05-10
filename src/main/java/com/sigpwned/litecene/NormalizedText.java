@@ -17,12 +17,14 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.util;
+package com.sigpwned.litecene;
 
 import java.text.Normalizer;
 import java.util.BitSet;
 import java.util.Objects;
+import com.sigpwned.litecene.linting.Generated;
 import com.sigpwned.litecene.linting.VisibleForTesting;
+import com.sigpwned.litecene.util.CodePointIterator;
 
 /**
  * Performs unicode normalization and records what kidns of characters are removed or overwritten
@@ -101,6 +103,7 @@ public class NormalizedText {
   private final String normalizedText;
   private final BitSet removedTypes;
 
+  @Generated
   @VisibleForTesting
   NormalizedText(String originalText, String normalizedText, BitSet removedTypes) {
     this.originalText = originalText;
@@ -111,6 +114,7 @@ public class NormalizedText {
   /**
    * @return the originalText
    */
+  @Generated
   public String getOriginalText() {
     return originalText;
   }
@@ -118,6 +122,7 @@ public class NormalizedText {
   /**
    * @return the normalizedText
    */
+  @Generated
   public String getNormalizedText() {
     return normalizedText;
   }
@@ -125,16 +130,19 @@ public class NormalizedText {
   /**
    * @return the removedTypes
    */
+  @Generated
   public BitSet getRemovedTypes() {
     return removedTypes;
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(normalizedText, originalText, removedTypes);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -149,6 +157,7 @@ public class NormalizedText {
   }
 
   @Override
+  @Generated
   public String toString() {
     return "Normalization [originalText=" + originalText + ", normalizedText=" + normalizedText
         + ", removedTypes=" + removedTypes + "]";

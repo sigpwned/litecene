@@ -21,12 +21,15 @@ package com.sigpwned.litecene.query;
 
 import java.util.Objects;
 import com.sigpwned.litecene.Query;
+import com.sigpwned.litecene.linting.Generated;
 
 public class TermQuery extends Query {
   private final String text;
   private final boolean wildcard;
 
   public TermQuery(String text, boolean wildcard) {
+    if (text == null)
+      throw new NullPointerException();
     this.text = text;
     this.wildcard = wildcard;
   }
@@ -34,6 +37,7 @@ public class TermQuery extends Query {
   /**
    * @return the text
    */
+  @Generated
   public String getText() {
     return text;
   }
@@ -41,6 +45,7 @@ public class TermQuery extends Query {
   /**
    * @return the wildcard
    */
+  @Generated
   public boolean isWildcard() {
     return wildcard;
   }
@@ -56,11 +61,13 @@ public class TermQuery extends Query {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(text, wildcard);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
