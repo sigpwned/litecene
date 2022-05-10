@@ -51,7 +51,7 @@ public class StringQuery extends Query {
     }
 
     public boolean isVacuous() {
-      return getText().isEmpty() && !isWildcard();
+      return getText().length() < 3 && !isWildcard();
     }
 
     @Override
@@ -104,7 +104,7 @@ public class StringQuery extends Query {
 
   @Override
   public boolean isVacuous() {
-    return getTerms().isEmpty();
+    return getTerms().stream().allMatch(Term::isVacuous);
   }
 
   @Override

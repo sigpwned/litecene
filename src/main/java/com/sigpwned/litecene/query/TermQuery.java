@@ -47,7 +47,7 @@ public class TermQuery extends Query {
 
   @Override
   public boolean isVacuous() {
-    return getText().isEmpty() && !isWildcard();
+    return getText().length() < 3 && !isWildcard();
   }
 
   @Override
