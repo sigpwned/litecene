@@ -25,4 +25,6 @@ public abstract class Query {
    * term query of the empty string.
    */
   public abstract boolean isVacuous();
+
+  public abstract Query simplify();
 }

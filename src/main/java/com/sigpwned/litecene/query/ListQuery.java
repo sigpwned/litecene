@@ -21,6 +21,7 @@ package com.sigpwned.litecene.query;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.Objects;
 import com.sigpwned.litecene.Query;
@@ -44,6 +45,20 @@ public class ListQuery extends Query {
   @Override
   public boolean isVacuous() {
     return getChildren().stream().allMatch(Query::isVacuous);
+  }
+
+  @Override
+  public Query simplify() {
+    List<Query> cs =
+        getChildren().stream().map(Query::simplify).filter(c -> !c.isVacuous()).collect(toList());
+    if (cs.size() == getChildren().size())
+      return this;
+    else if (cs.size() == 0)
+      return VacuousQuery.INSTANCE;
+    else if (cs.size() == 1)
+      return cs.get(0);
+    else
+      return new AndQuery(cs);
   }
 
   @Override

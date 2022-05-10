@@ -42,11 +42,13 @@ public class QueryTokenizerTest {
       tokens.add(ts.next());
     } while (tokens.get(tokens.size() - 1).getType() != Token.Type.EOF);
 
-    assertThat(tokens,
-        is(asList(new TermToken("hello"), new TermToken("world"), Token.AND, Token.NOT, Token.OR,
-            Token.LPAREN, Token.RPAREN, new TermToken("1234"),
-            new StringToken(asList("yo", "dawg"), null),
-            new StringToken(asList("proxim", "ity"), 10), Token.EOF)));
+    assertThat(tokens, is(asList(new TermToken("hello", false), new TermToken("world", false),
+        Token.AND, Token.NOT, Token.OR, Token.LPAREN, Token.RPAREN, new TermToken("1234", false),
+        new StringToken(
+            asList(new StringToken.Term("yo", false), new StringToken.Term("dawg", false)), null),
+        new StringToken(
+            asList(new StringToken.Term("proxim", false), new StringToken.Term("ity", false)), 10),
+        Token.EOF)));
 
   }
 
@@ -60,12 +62,12 @@ public class QueryTokenizerTest {
       tokens.add(ts.next());
     } while (tokens.get(tokens.size() - 1).getType() != Token.Type.EOF);
 
-    assertThat(tokens,
-        is(asList(new TermToken("it"), new TermToken("s"), new TermToken("a"),
-            new TermToken("hard"), new TermToken("knock"), new TermToken("life"),
-            new TermToken("for"), new TermToken("us"), new TermToken("it"), new TermToken("s"),
-            new TermToken("a"), new TermToken("hard"), new TermToken("knock"),
-            new TermToken("life"), new TermToken("for"), new TermToken("us"), Token.EOF)));
+    assertThat(tokens, is(asList(new TermToken("it", false), new TermToken("s", false),
+        new TermToken("a", false), new TermToken("hard", false), new TermToken("knock", false),
+        new TermToken("life", false), new TermToken("for", false), new TermToken("us", false),
+        new TermToken("it", false), new TermToken("s", false), new TermToken("a", false),
+        new TermToken("hard", false), new TermToken("knock", false), new TermToken("life", false),
+        new TermToken("for", false), new TermToken("us", false), Token.EOF)));
 
   }
 

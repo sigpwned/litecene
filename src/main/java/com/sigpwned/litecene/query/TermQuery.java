@@ -24,9 +24,11 @@ import com.sigpwned.litecene.Query;
 
 public class TermQuery extends Query {
   private final String text;
+  private final boolean wildcard;
 
-  public TermQuery(String text) {
+  public TermQuery(String text, boolean wildcard) {
     this.text = text;
+    this.wildcard = wildcard;
   }
 
   /**
@@ -36,14 +38,26 @@ public class TermQuery extends Query {
     return text;
   }
 
+  /**
+   * @return the wildcard
+   */
+  public boolean isWildcard() {
+    return wildcard;
+  }
+
   @Override
   public boolean isVacuous() {
-    return getText().isEmpty();
+    return getText().isEmpty() && !isWildcard();
+  }
+
+  @Override
+  public Query simplify() {
+    return isVacuous() ? VacuousQuery.INSTANCE : this;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(text);
+    return Objects.hash(text, wildcard);
   }
 
   @Override
@@ -55,11 +69,14 @@ public class TermQuery extends Query {
     if (getClass() != obj.getClass())
       return false;
     TermQuery other = (TermQuery) obj;
-    return Objects.equals(text, other.text);
+    return Objects.equals(text, other.text) && wildcard == other.wildcard;
   }
 
   @Override
   public String toString() {
-    return getText();
+    String result = getText();
+    if (isWildcard())
+      result = result + "*";
+    return result;
   }
 }

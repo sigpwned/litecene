@@ -19,16 +19,40 @@
  */
 package com.sigpwned.litecene;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Test;
+import com.sigpwned.litecene.query.ListQuery;
+import com.sigpwned.litecene.query.TermQuery;
 import com.sigpwned.litecene.query.parse.QueryParser;
 
 public class QueryTest {
   @Test
-  public void toStringTest() {
+  public void shouldConvertQueryWithNoDroppedCharactersToStringProperly() {
     final String input = "hello OR world AND (foobar AND NOT quux pants) AND \"alpha bravo\"~10";
     final String output = new QueryParser().query(input).toString();
-    assertThat(input, is(output));
+    assertThat(output, is(input));
+  }
+
+  @Test
+  public void shouldSimplifyVacuousAndNotProperly() {
+    final String input = "hello AND NOT \"阿弥陀佛\"";
+    final String output = new QueryParser().query(input).simplify().toString();
+    assertThat(output, is("hello"));
+  }
+
+  @Test
+  public void shouldSimplifyVacuousOrNotProperly() {
+    final String input = "hello OR NOT \"阿弥陀佛\"";
+    final String output = new QueryParser().query(input).simplify().toString();
+    assertThat(output, is("hello"));
+  }
+
+  @Test
+  public void shouldSimplifyDroppedTermsProperly() {
+    final String input = "hello 南无阿弥陀佛 world*";
+    final Query output = new QueryParser().query(input).simplify();
+    assertThat(output, is(new ListQuery(asList(new TermQuery("hello", false), new TermQuery("world", true)))));
   }
 }

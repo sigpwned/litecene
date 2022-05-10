@@ -20,17 +20,71 @@
 package com.sigpwned.litecene.query.parse.token;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.joining;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
 import com.sigpwned.litecene.query.parse.Token;
 
 public class StringToken extends Token {
-  private final List<String> terms;
+  public static class Term {
+    private final String text;
+    private final boolean wildcard;
+
+    public Term(String text, boolean wildcard) {
+      this.text = text;
+      this.wildcard = wildcard;
+    }
+
+    /**
+     * @return the text
+     */
+    public String getText() {
+      return text;
+    }
+
+    /**
+     * @return the wildcard
+     */
+    public boolean isWildcard() {
+      return wildcard;
+    }
+
+    public boolean isVacuous() {
+      return getText().isEmpty() && !isWildcard();
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(text, wildcard);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      Term other = (Term) obj;
+      return Objects.equals(text, other.text) && wildcard == other.wildcard;
+    }
+
+    @Override
+    public String toString() {
+      String result = getText();
+      if (isWildcard())
+        result = result + "*";
+      return result;
+    }
+  }
+
+  private final List<Term> terms;
   private final Integer proximity;
 
-  public StringToken(List<String> terms, Integer proximity) {
-    super(Type.STRING, String.join(" ", terms));
+  public StringToken(List<Term> terms, Integer proximity) {
+    super(Type.STRING, terms.stream().map(Objects::toString).collect(joining(" ")));
     this.terms = unmodifiableList(terms);
     this.proximity = proximity;
   }
@@ -38,7 +92,7 @@ public class StringToken extends Token {
   /**
    * @return the terms
    */
-  public List<String> getTerms() {
+  public List<Term> getTerms() {
     return terms;
   }
 

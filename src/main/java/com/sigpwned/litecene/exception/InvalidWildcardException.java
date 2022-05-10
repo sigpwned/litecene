@@ -17,20 +17,10 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.query;
+package com.sigpwned.litecene.exception;
 
-import com.sigpwned.litecene.Query;
+import com.sigpwned.litecene.LiteceneException;
 
-public class VacuousQuery extends Query {
-  public static VacuousQuery INSTANCE = new VacuousQuery();
-
-  @Override
-  public boolean isVacuous() {
-    return true;
-  }
-
-  @Override
-  public Query simplify() {
-    return this;
-  }
+public class InvalidWildcardException extends LiteceneException {
+  private static final long serialVersionUID = -515897617683871600L;
 }

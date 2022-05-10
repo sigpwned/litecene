@@ -20,6 +20,7 @@
 package com.sigpwned.litecene.query.parse;
 
 import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -118,11 +119,13 @@ public class QueryParser {
     switch (t.getType()) {
       case TERM: {
         TermToken tt = t.asTerm();
-        return new TermQuery(tt.getText());
+        return new TermQuery(tt.getText(), tt.isWildcard());
       }
       case STRING: {
         StringToken st = t.asString();
-        return new StringQuery(st.getTerms(),
+        return new StringQuery(
+            st.getTerms().stream().map(stt -> new StringQuery.Term(stt.getText(), stt.isWildcard()))
+                .collect(toList()),
             st.getProxmity().isPresent() ? st.getProxmity().getAsInt() : null);
       }
       case LPAREN: {

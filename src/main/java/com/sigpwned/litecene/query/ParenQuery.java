@@ -42,6 +42,21 @@ public class ParenQuery extends Query {
   }
 
   @Override
+  public Query simplify() {
+    Query c = getChild().simplify();
+    if (c.isVacuous())
+      return VacuousQuery.INSTANCE;
+    else if (c instanceof ParenQuery || c instanceof StringQuery || c instanceof TermQuery
+        || c instanceof NotQuery) {
+      // These queries are atomic and can safely be unpacked
+      return c;
+    } else if (c.equals(child))
+      return this;
+    else
+      return new NotQuery(c);
+  }
+
+  @Override
   public int hashCode() {
     return Objects.hash(child);
   }

@@ -20,16 +20,70 @@
 package com.sigpwned.litecene.query;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.joining;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
 import com.sigpwned.litecene.Query;
 
 public class StringQuery extends Query {
-  private final List<String> terms;
+  public static class Term {
+    private final String text;
+    private final boolean wildcard;
+
+    public Term(String text, boolean wildcard) {
+      this.text = text;
+      this.wildcard = wildcard;
+    }
+
+    /**
+     * @return the text
+     */
+    public String getText() {
+      return text;
+    }
+
+    /**
+     * @return the wildcard
+     */
+    public boolean isWildcard() {
+      return wildcard;
+    }
+
+    public boolean isVacuous() {
+      return getText().isEmpty() && !isWildcard();
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(text, wildcard);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      Term other = (Term) obj;
+      return Objects.equals(text, other.text) && wildcard == other.wildcard;
+    }
+
+    @Override
+    public String toString() {
+      String result = getText();
+      if (isWildcard())
+        result = result + "*";
+      return result;
+    }
+  }
+
+  private final List<Term> terms;
   private final Integer proximity;
 
-  public StringQuery(List<String> terms, Integer proximity) {
+  public StringQuery(List<Term> terms, Integer proximity) {
     this.terms = unmodifiableList(terms);
     this.proximity = proximity;
   }
@@ -37,7 +91,7 @@ public class StringQuery extends Query {
   /**
    * @return the text
    */
-  public List<String> getTerms() {
+  public List<Term> getTerms() {
     return terms;
   }
 
@@ -51,6 +105,11 @@ public class StringQuery extends Query {
   @Override
   public boolean isVacuous() {
     return getTerms().isEmpty();
+  }
+
+  @Override
+  public Query simplify() {
+    return isVacuous() ? VacuousQuery.INSTANCE : this;
   }
 
   @Override
@@ -72,7 +131,7 @@ public class StringQuery extends Query {
 
   @Override
   public String toString() {
-    String result = "\"" + String.join(" ", terms) + "\"";
+    String result = "\"" + getTerms().stream().map(Objects::toString).collect(joining(" ")) + "\"";
     if (proximity != null)
       result = result + "~" + proximity;
     return result;

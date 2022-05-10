@@ -42,6 +42,17 @@ public class NotQuery extends Query {
   }
 
   @Override
+  public Query simplify() {
+    Query c = getChild().simplify();
+    if (c.isVacuous())
+      return VacuousQuery.INSTANCE;
+    else if (c.equals(child))
+      return this;
+    else
+      return new NotQuery(c);
+  }
+
+  @Override
   public int hashCode() {
     return Objects.hash(child);
   }

@@ -22,7 +22,17 @@ package com.sigpwned.litecene.query.parse.token;
 import com.sigpwned.litecene.query.parse.Token;
 
 public class TermToken extends Token {
-  public TermToken(String text) {
+  private final boolean wildcard;
+
+  public TermToken(String text, boolean wildcard) {
     super(Type.TERM, text);
+    this.wildcard = wildcard;
+  }
+
+  /**
+   * @return the wildcard
+   */
+  public boolean isWildcard() {
+    return wildcard;
   }
 }
