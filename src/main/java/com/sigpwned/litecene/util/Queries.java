@@ -31,7 +31,9 @@ import com.sigpwned.litecene.query.StringQuery;
 import com.sigpwned.litecene.query.TermQuery;
 import com.sigpwned.litecene.query.VacuousQuery;
 
-public class Queries {
+public final class Queries {
+  private Queries() {}
+
   /**
    * Returns true if the given query is vacuous, which is to say has no meaningful standard for
    * filtering text. Example: a list query with no queries in it
