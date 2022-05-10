@@ -19,10 +19,15 @@
  */
 package com.sigpwned.litecene.query.parse.token;
 
+import com.sigpwned.litecene.Term;
 import com.sigpwned.litecene.query.parse.Token;
 
 public class TermToken extends Token {
   private final boolean wildcard;
+
+  public TermToken(Term term) {
+    this(term.getText(), term.isWildcard());
+  }
 
   public TermToken(String text, boolean wildcard) {
     super(Type.TERM, text);

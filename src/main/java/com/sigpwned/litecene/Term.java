@@ -17,52 +17,65 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.query;
+package com.sigpwned.litecene;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.joining;
-import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
-import java.util.OptionalInt;
-import com.sigpwned.litecene.Query;
-import com.sigpwned.litecene.Term;
+import com.sigpwned.litecene.exception.InvalidWildcardException;
 
-public class StringQuery extends Query {
-  private final List<Term> terms;
-  private final Integer proximity;
+public class Term {
+  public static Term fromString(String text) {
+    boolean wildcard;
+    if (text.endsWith("*")) {
+      text = text.substring(0, text.length() - 1);
+      wildcard = true;
+    } else {
+      wildcard = false;
+    }
 
-  public StringQuery(List<Term> terms, Integer proximity) {
-    this.terms = unmodifiableList(terms);
-    this.proximity = proximity;
+    if (text.contains("*"))
+      throw new InvalidWildcardException();
+
+    return new Term(text, wildcard);
+  }
+
+  public static Term of(String text, boolean wildcard) {
+    return new Term(text, wildcard);
+  }
+
+  private final String text;
+  private final boolean wildcard;
+
+  public Term(String text, boolean wildcard) {
+    if (text == null)
+      throw new NullPointerException();
+    if (text.contains("*"))
+      throw new IllegalArgumentException("text contains wildcard");
+    this.text = text.toLowerCase(Locale.ENGLISH);
+    this.wildcard = wildcard;
   }
 
   /**
    * @return the text
    */
-  public List<Term> getTerms() {
-    return terms;
+  public String getText() {
+    return text;
   }
 
   /**
-   * @return the proximity
+   * @return the wildcard
    */
-  public OptionalInt getProximity() {
-    return proximity != null ? OptionalInt.of(proximity.intValue()) : OptionalInt.empty();
+  public boolean isWildcard() {
+    return wildcard;
   }
 
-  @Override
   public boolean isVacuous() {
-    return getTerms().stream().allMatch(Term::isVacuous);
-  }
-
-  @Override
-  public Query simplify() {
-    return isVacuous() ? VacuousQuery.INSTANCE : this;
+    return getText().length() < 3 && !isWildcard();
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(proximity, terms);
+    return Objects.hash(text, wildcard);
   }
 
   @Override
@@ -73,15 +86,15 @@ public class StringQuery extends Query {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    StringQuery other = (StringQuery) obj;
-    return Objects.equals(proximity, other.proximity) && Objects.equals(terms, other.terms);
+    Term other = (Term) obj;
+    return Objects.equals(text, other.text) && wildcard == other.wildcard;
   }
 
   @Override
   public String toString() {
-    String result = "\"" + getTerms().stream().map(Objects::toString).collect(joining(" ")) + "\"";
-    if (proximity != null)
-      result = result + "~" + proximity;
+    String result = getText();
+    if (isWildcard())
+      result = result + "*";
     return result;
   }
 }

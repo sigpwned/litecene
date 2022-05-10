@@ -58,20 +58,9 @@ public class NormalizedText {
 
       int type = -1;
       int representation;
-      if (cp <= 0x1F) {
-        // These are control characters
-        if (cp == '\t' || cp == '\r' || cp == '\n') {
-          // This is a regular spacing characters. Add.
-          representation = cp;
-        } else {
-          representation = NUL;
-        }
-      } else if (cp >= 0x20 && cp <= 0x7E) {
+      if (cp >= 0x20 && cp <= 0x7E) {
         // This is a good old fashioned ASCII characters. Add.
         representation = cp;
-      } else if (cp == 0x7F) {
-        // This is the delete character. Ignore.
-        representation = NUL;
       } else {
         // These are non-ASCII characters. We will either ignore them entirely or add a space where
         // they used to be, depending on what kind of character they are.

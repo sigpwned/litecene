@@ -20,11 +20,10 @@
 package com.sigpwned.litecene.query.parse;
 
 import static java.util.stream.Collectors.toList;
-import java.util.Locale;
 import java.util.regex.Pattern;
+import com.sigpwned.litecene.Term;
 import com.sigpwned.litecene.exception.EofException;
 import com.sigpwned.litecene.exception.InvalidProximityException;
-import com.sigpwned.litecene.exception.InvalidWildcardException;
 import com.sigpwned.litecene.exception.UnrecognizedCharacterException;
 import com.sigpwned.litecene.query.parse.token.StringToken;
 import com.sigpwned.litecene.query.parse.token.TermToken;
@@ -40,7 +39,7 @@ public class QueryTokenizer {
     return new QueryTokenizer(normalizedText);
   }
 
-  private static final Pattern SPACE = Pattern.compile("[ ]+");
+  private static final Pattern SPACES = Pattern.compile("[ ]+");
 
   private Token next;
   private CodePointIterator iterator;
@@ -120,23 +119,8 @@ public class QueryTokenizer {
           proximity = null;
         }
 
-        // TODO Convert quoted string contents into terms
-
-        return new StringToken(SPACE.splitAsStream(text.strip()).filter(t -> !t.isEmpty())
-            .map(t -> standardize(t)).map(txt -> {
-              boolean wildcard;
-              if (txt.endsWith("*")) {
-                txt = txt.substring(0, txt.length() - 1);
-                wildcard = true;
-              } else {
-                wildcard = false;
-              }
-
-              if (txt.contains("*"))
-                throw new InvalidWildcardException();
-
-              return new StringToken.Term(txt, wildcard);
-            }).collect(toList()), proximity);
+        return new StringToken(SPACES.splitAsStream(text.strip()).filter(t -> !t.isEmpty())
+            .map(Term::fromString).collect(toList()), proximity);
       }
       default: {
         if (!termy(ch))
@@ -150,20 +134,6 @@ public class QueryTokenizer {
 
         String text = buf.toString();
 
-        boolean wildcard;
-        if (text.endsWith("*")) {
-          text = text.substring(0, text.length() - 1);
-          wildcard = true;
-        } else {
-          wildcard = false;
-        }
-
-        if (text.contains("*"))
-          throw new InvalidWildcardException();
-
-        if (wildcard)
-          return new TermToken(standardize(text), wildcard);
-
         switch (text) {
           case AND:
             return Token.AND;
@@ -172,16 +142,16 @@ public class QueryTokenizer {
           case NOT:
             return Token.NOT;
           default:
-            return new TermToken(standardize(text), wildcard);
+            return new TermToken(Term.fromString(text));
         }
       }
     }
   }
 
-  private String standardize(String s) {
-    return s.toLowerCase(Locale.ENGLISH);
-  }
-
+  /**
+   * We only "index" alphanumerical content, plus meta characters. Anything else should be "read" as
+   * whitespace, which is to be ignored.
+   */
   private int transliterate(int ch) {
     if (ch >= 'a' && ch <= 'z') {
       return ch;
@@ -203,6 +173,10 @@ public class QueryTokenizer {
     }
   }
 
+  /**
+   * We only search for content that's alphanumerical. This method recognizes content that's
+   * relevant to searching content. In particular, metacharacters are ignored.
+   */
   private boolean termy(int ch) {
     switch (ch) {
       case STAR:

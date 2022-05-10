@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
+import com.sigpwned.litecene.Term;
 import com.sigpwned.litecene.exception.EofException;
 import com.sigpwned.litecene.query.parse.QueryTokenizer;
 import com.sigpwned.litecene.query.parse.Token;
@@ -42,13 +43,12 @@ public class QueryTokenizerTest {
       tokens.add(ts.next());
     } while (tokens.get(tokens.size() - 1).getType() != Token.Type.EOF);
 
-    assertThat(tokens, is(asList(new TermToken("hello", false), new TermToken("world", false),
-        Token.AND, Token.NOT, Token.OR, Token.LPAREN, Token.RPAREN, new TermToken("1234", false),
-        new StringToken(
-            asList(new StringToken.Term("yo", false), new StringToken.Term("dawg", false)), null),
-        new StringToken(
-            asList(new StringToken.Term("proxim", false), new StringToken.Term("ity", false)), 10),
-        Token.EOF)));
+    assertThat(tokens,
+        is(asList(new TermToken("hello", false), new TermToken("world", false), Token.AND,
+            Token.NOT, Token.OR, Token.LPAREN, Token.RPAREN, new TermToken("1234", false),
+            new StringToken(asList(new Term("yo", false), new Term("dawg", false)), null),
+            new StringToken(asList(new Term("proxim", false), new Term("ity", false)), 10),
+            Token.EOF)));
 
   }
 
