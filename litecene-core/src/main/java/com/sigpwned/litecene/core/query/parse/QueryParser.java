@@ -40,8 +40,7 @@ import com.sigpwned.litecene.core.query.parse.token.StringToken;
 import com.sigpwned.litecene.core.query.parse.token.TermToken;
 
 public class QueryParser {
-  public Query query(String s) {
-    QueryTokenizer ts = QueryTokenizer.forString(s);
+  public Query query(QueryTokenizer ts) {
     Query result = query1(ts);
     if (ts.peek().getType() != Token.Type.EOF)
       throw new UnparsedTokenException();

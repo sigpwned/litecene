@@ -32,7 +32,7 @@ import com.sigpwned.litecene.core.query.VacuousQuery;
 
 public class QueryProcessor<T> {
   public static interface Processor<T> {
-    default T and(AndQuery query) {
+    default T and(AndQuery and) {
       return null;
     }
 

@@ -12,6 +12,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.sigpwned</groupId>
+            <artifactId>litecene-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+    
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>compile</scope>

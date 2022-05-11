@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-test
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,15 +17,56 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core.query;
+package com.sigpwned.litecene.test;
 
-import com.sigpwned.litecene.core.Query;
+import java.util.Objects;
 
-public class VacuousQuery extends Query {
-  public static VacuousQuery INSTANCE = new VacuousQuery();
+public class Document {
+  public static Document of(String id, String text) {
+    return new Document(id, text);
+  }
+
+  private final String id;
+  private final String text;
+
+  public Document(String id, String text) {
+    this.id = id;
+    this.text = text;
+  }
+
+  /**
+   * @return the id
+   */
+  public String getId() {
+    return id;
+  }
+
+  /**
+   * @return the text
+   */
+  public String getText() {
+    return text;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, text);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Document other = (Document) obj;
+    return Objects.equals(id, other.id) && Objects.equals(text, other.text);
+  }
 
   @Override
   public String toString() {
-    return "";
+    return "Document [id=" + id + ", text=" + text + "]";
   }
 }

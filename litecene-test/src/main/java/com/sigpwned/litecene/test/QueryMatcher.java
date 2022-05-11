@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-test
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,20 +17,12 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core;
+package com.sigpwned.litecene.test;
 
-import com.sigpwned.litecene.core.query.parse.QueryParser;
-import com.sigpwned.litecene.core.query.parse.QueryTokenizer;
-import com.sigpwned.litecene.core.util.Queries;
+import java.io.IOException;
+import java.util.Set;
+import com.sigpwned.litecene.core.Query;
 
-public abstract class Query {
-  public static Query fromString(String s) {
-    NormalizedText normalized = NormalizedText.normalize(s);
-    QueryTokenizer t = QueryTokenizer.forNormalizedText(normalized);
-    return Queries.simplify(new QueryParser().query(t));
-  }
-
-  // NOTE: This is not the natural opposite of Query#fromString.
-  @Override
-  public abstract String toString();
+public interface QueryMatcher {
+  public Set<String> match(Corpus corpus, Query query) throws IOException;
 }

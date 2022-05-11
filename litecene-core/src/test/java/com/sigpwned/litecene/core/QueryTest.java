@@ -26,34 +26,37 @@ import org.junit.Test;
 import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.TermQuery;
 import com.sigpwned.litecene.core.query.parse.QueryParser;
+import com.sigpwned.litecene.core.query.parse.QueryTokenizer;
 import com.sigpwned.litecene.core.util.Queries;
 
 public class QueryTest {
   @Test
   public void shouldConvertQueryWithNoDroppedCharactersToStringProperly() {
     final String input = "hello OR world AND (foobar AND NOT quux pants) AND \"alpha bravo\"~10";
-    final String output = new QueryParser().query(input).toString();
+    final String output = new QueryParser().query(QueryTokenizer.forString(input)).toString();
     assertThat(output, is(input));
   }
 
   @Test
   public void shouldSimplifyVacuousAndNotProperly() {
     final String input = "hello AND NOT \"阿弥陀佛\"";
-    final String output = Queries.simplify(new QueryParser().query(input)).toString();
+    final String output =
+        Queries.simplify(new QueryParser().query(QueryTokenizer.forString(input))).toString();
     assertThat(output, is("hello"));
   }
 
   @Test
   public void shouldSimplifyVacuousOrNotProperly() {
     final String input = "hello OR NOT \"阿弥陀佛\"";
-    final String output = Queries.simplify(new QueryParser().query(input)).toString();
+    final String output =
+        Queries.simplify(new QueryParser().query(QueryTokenizer.forString(input))).toString();
     assertThat(output, is("hello"));
   }
 
   @Test
   public void shouldSimplifyDroppedTermsProperly() {
     final String input = "hello 南无阿弥陀佛 world*";
-    final Query output = Queries.simplify(new QueryParser().query(input));
+    final Query output = Queries.simplify(new QueryParser().query(QueryTokenizer.forString(input)));
     assertThat(output,
         is(new ListQuery(asList(new TermQuery("hello", false), new TermQuery("world", true)))));
   }
