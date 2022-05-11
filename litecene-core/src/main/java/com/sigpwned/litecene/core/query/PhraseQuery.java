@@ -28,15 +28,15 @@ import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.linting.Generated;
 
-public class StringQuery extends Query {
+public class PhraseQuery extends Query {
   private final List<Term> terms;
   private final Integer proximity;
 
-  public StringQuery(List<Term> terms, OptionalInt proximity) {
+  public PhraseQuery(List<Term> terms, OptionalInt proximity) {
     this(terms, proximity.isPresent() ? proximity.getAsInt() : null);
   }
 
-  public StringQuery(List<Term> terms, Integer proximity) {
+  public PhraseQuery(List<Term> terms, Integer proximity) {
     if (terms == null)
       throw new NullPointerException();
     this.terms = unmodifiableList(terms);
@@ -73,7 +73,7 @@ public class StringQuery extends Query {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    StringQuery other = (StringQuery) obj;
+    PhraseQuery other = (PhraseQuery) obj;
     return Objects.equals(proximity, other.proximity) && Objects.equals(terms, other.terms);
   }
 

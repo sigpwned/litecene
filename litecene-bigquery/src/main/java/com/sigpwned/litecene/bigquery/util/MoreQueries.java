@@ -29,7 +29,7 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.StringQuery;
+import com.sigpwned.litecene.core.query.PhraseQuery;
 import com.sigpwned.litecene.core.query.TermQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.util.Queries;
@@ -116,7 +116,7 @@ public final class MoreQueries {
        * Example: "hell* world" -> [ world ]
        */
       @Override
-      public Set<String> string(StringQuery string) {
+      public Set<String> phrase(PhraseQuery string) {
         return string.getTerms().stream().filter(t -> !t.isWildcard()).map(t -> t.getText())
             .collect(toSet());
       }
@@ -212,7 +212,7 @@ public final class MoreQueries {
        * Example: "hello world" -> false
        */
       @Override
-      public Boolean string(StringQuery string) {
+      public Boolean phrase(PhraseQuery string) {
         return string.getTerms().size() == 1 && !string.getTerms().get(0).isWildcard();
       }
 

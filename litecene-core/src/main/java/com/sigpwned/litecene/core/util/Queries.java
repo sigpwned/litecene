@@ -27,7 +27,7 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.StringQuery;
+import com.sigpwned.litecene.core.query.PhraseQuery;
 import com.sigpwned.litecene.core.query.TermQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 
@@ -66,7 +66,7 @@ public final class Queries {
       }
 
       @Override
-      public Boolean string(StringQuery string) {
+      public Boolean phrase(PhraseQuery string) {
         return string.getTerms().stream().allMatch(Terms::isVacuous);
       }
 
@@ -146,7 +146,7 @@ public final class Queries {
         Query c = Queries.simplify(paren.getChild());
         if (Queries.isVacuous(c))
           return VacuousQuery.INSTANCE;
-        else if (c instanceof ParenQuery || c instanceof StringQuery || c instanceof TermQuery
+        else if (c instanceof ParenQuery || c instanceof PhraseQuery || c instanceof TermQuery
             || c instanceof NotQuery) {
           // These queries are atomic and can safely be unpacked
           return c;
@@ -157,14 +157,14 @@ public final class Queries {
       }
 
       @Override
-      public Query string(StringQuery string) {
-        string = new StringQuery(
-            string.getTerms().stream().filter(t -> !Terms.isVacuous(t)).collect(toList()),
-            string.getProximity());
-        if (Queries.isVacuous(string))
+      public Query phrase(PhraseQuery phrase) {
+        phrase = new PhraseQuery(
+            phrase.getTerms().stream().filter(t -> !Terms.isVacuous(t)).collect(toList()),
+            phrase.getProximity());
+        if (Queries.isVacuous(phrase))
           return VacuousQuery.INSTANCE;
         else
-          return string;
+          return phrase;
       }
 
       @Override

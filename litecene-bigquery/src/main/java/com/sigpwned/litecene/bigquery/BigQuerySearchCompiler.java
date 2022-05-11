@@ -33,7 +33,7 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.StringQuery;
+import com.sigpwned.litecene.core.query.PhraseQuery;
 import com.sigpwned.litecene.core.query.TermQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.util.QueryProcessor;
@@ -87,14 +87,12 @@ public class BigQuerySearchCompiler {
    * field.
    */
   public String compile(Query q) {
-    if (isIndexed()) {
-      if (MoreQueries.isFullySearchable(q)) {
-        return String.format("(%s)", searchPredicate(q));
-      } else {
-        return String.format("((%s) AND (%s))", searchPredicate(q), regexPredicate(q));
-      }
+    if (MoreQueries.isFullySearchable(q)) {
+      return String.format("(%s)", searchPredicate(q));
+    } else if (isIndexed()) {
+      return String.format("((%s) AND (%s))", searchPredicate(q), regexPredicate(q));
     } else {
-      return "(" + regexPredicate(q) + ")";
+      return String.format("(%s)", regexPredicate(q));
     }
   }
 
@@ -152,7 +150,7 @@ public class BigQuerySearchCompiler {
        * We use a combination of regular expressions to find the string tokens
        */
       @Override
-      public String string(StringQuery string) {
+      public String phrase(PhraseQuery string) {
         if (string.getProximity().isPresent()) {
           // The tokens don't have to be in order, but they do have to be close to each other. We
           // create a table of acceptable tokens for each search term and then filter the cartesian

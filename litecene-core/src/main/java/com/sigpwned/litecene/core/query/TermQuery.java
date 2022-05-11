@@ -21,11 +21,16 @@ package com.sigpwned.litecene.core.query;
 
 import java.util.Objects;
 import com.sigpwned.litecene.core.Query;
+import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.linting.Generated;
 
 public class TermQuery extends Query {
   private final String text;
   private final boolean wildcard;
+
+  public TermQuery(Term term) {
+    this(term.getText(), term.isWildcard());
+  }
 
   public TermQuery(String text, boolean wildcard) {
     if (text == null)

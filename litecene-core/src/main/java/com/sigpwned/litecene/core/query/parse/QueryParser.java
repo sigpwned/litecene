@@ -20,11 +20,16 @@
 package com.sigpwned.litecene.core.query.parse;
 
 import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 import com.sigpwned.litecene.core.Query;
+import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.exception.EofException;
 import com.sigpwned.litecene.core.exception.UnmatchedParenthesisException;
 import com.sigpwned.litecene.core.exception.UnparsedTokenException;
@@ -34,9 +39,10 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.StringQuery;
+import com.sigpwned.litecene.core.query.PhraseQuery;
 import com.sigpwned.litecene.core.query.TermQuery;
-import com.sigpwned.litecene.core.query.parse.token.StringToken;
+import com.sigpwned.litecene.core.query.VacuousQuery;
+import com.sigpwned.litecene.core.query.parse.token.PhraseToken;
 import com.sigpwned.litecene.core.query.parse.token.TermToken;
 
 public class QueryParser {
@@ -80,7 +86,7 @@ public class QueryParser {
   }
 
   private static final Set<Token.Type> LISTABLES = unmodifiableSet(
-      EnumSet.of(Token.Type.LPAREN, Token.Type.NOT, Token.Type.STRING, Token.Type.TERM));
+      EnumSet.of(Token.Type.LPAREN, Token.Type.NOT, Token.Type.PHRASE, Token.Type.TERM));
 
   // term term term ...
   private Query query3(QueryTokenizer ts) {
@@ -112,17 +118,59 @@ public class QueryParser {
     return atom(ts);
   }
 
+  private static final Pattern ALNUM = Pattern.compile("[a-zA-Z0-9]+");
+
+  private static final Pattern SPACES = Pattern.compile("\\p{javaWhitespace}+");
+
   private Query atom(QueryTokenizer ts) {
     Token t = ts.next();
     switch (t.getType()) {
       case TERM: {
         TermToken tt = t.asTerm();
-        return new TermQuery(tt.getText(), tt.isWildcard());
+
+        String text = tt.getText();
+
+        List<Term> terms = termify(text);
+
+        if (terms.size() == 0) {
+          return VacuousQuery.INSTANCE;
+        } else if (terms.size() == 1) {
+          return new TermQuery(terms.get(0));
+        } else {
+          return new PhraseQuery(terms, OptionalInt.empty());
+        }
       }
-      case STRING: {
-        StringToken st = t.asString();
-        return new StringQuery(st.getTerms(),
-            st.getProxmity().isPresent() ? st.getProxmity().getAsInt() : null);
+      case PHRASE: {
+        PhraseToken pt = t.asString();
+
+        String text = pt.getText();
+
+        List<String> tokens = SPACES.splitAsStream(text).collect(toList());
+
+        List<Term> terms = tokens.stream().flatMap(s -> termify(s).stream()).collect(toList());
+
+        if (terms.size() == 0) {
+          return VacuousQuery.INSTANCE;
+        } else {
+          if (pt.getProximity().isPresent()) {
+            // Because we analyze the query text, the number of terms may not match the number of
+            // tokens. The number of terms can be more (what's -> what, s) or less (&#$ is not a
+            // valid term) than number of tokens. Therefore, if the user gave a proximity, we'll
+            // want to adjust that count appropriately.
+            int proximity = pt.getProximity().getAsInt() + terms.size() - tokens.size();
+            if (proximity < terms.size()) {
+              // If we have 5 terms that must be within 4 of each other, obviously that's not
+              // possible. We consider that to be a degenerate case, and return a vacuous query.
+              // TODO Warning degenerate proximity
+              return VacuousQuery.INSTANCE;
+            } else {
+              return new PhraseQuery(terms, proximity);
+            }
+          } else {
+            // If there is no proximity, then we're done here.
+            return new PhraseQuery(terms, OptionalInt.empty());
+          }
+        }
       }
       case LPAREN: {
         Query result = query1(ts);
@@ -135,5 +183,27 @@ public class QueryParser {
       default:
         throw new UnrecognizedTokenException();
     }
+  }
+
+  private List<Term> termify(String token) {
+    boolean wildcard;
+    if (token.endsWith("*")) {
+      token = token.substring(0, token.length() - 1);
+      wildcard = true;
+    } else {
+      wildcard = false;
+    }
+
+    if (token.contains("*")) {
+      // TODO Warning ignored wildcard
+    }
+
+    List<Term> terms = ALNUM.matcher(token).results().map(MatchResult::group)
+        .filter(s -> !s.isEmpty()).map(s -> Term.of(s, false)).collect(toList());
+
+    if (wildcard)
+      terms.set(terms.size() - 1, Term.of(terms.get(terms.size() - 1).getText(), true));
+
+    return terms;
   }
 }

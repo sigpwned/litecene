@@ -21,7 +21,7 @@ package com.sigpwned.litecene.core.query.parse;
 
 import java.util.Objects;
 import com.sigpwned.litecene.core.linting.Generated;
-import com.sigpwned.litecene.core.query.parse.token.StringToken;
+import com.sigpwned.litecene.core.query.parse.token.PhraseToken;
 import com.sigpwned.litecene.core.query.parse.token.TermToken;
 
 public abstract class Token {
@@ -44,7 +44,7 @@ public abstract class Token {
   public static final Token NOT = new ConstantToken(Type.NOT, "NOT");
 
   public static enum Type {
-    AND, OR, NOT, TERM, STRING, LPAREN, RPAREN, EOF;
+    AND, OR, NOT, TERM, PHRASE, LPAREN, RPAREN, EOF;
   }
 
   private final Type type;
@@ -59,8 +59,8 @@ public abstract class Token {
     this.text = text;
   }
 
-  public StringToken asString() {
-    return (StringToken) this;
+  public PhraseToken asString() {
+    return (PhraseToken) this;
   }
 
   public TermToken asTerm() {

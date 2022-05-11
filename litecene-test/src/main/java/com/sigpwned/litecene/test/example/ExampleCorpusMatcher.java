@@ -39,13 +39,13 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.StringQuery;
+import com.sigpwned.litecene.core.query.PhraseQuery;
 import com.sigpwned.litecene.core.query.TermQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.util.QueryProcessor;
 import com.sigpwned.litecene.test.Corpus;
-import com.sigpwned.litecene.test.Document;
 import com.sigpwned.litecene.test.CorpusMatcher;
+import com.sigpwned.litecene.test.Document;
 
 /**
  * This is a toy in-memory matcher. It's mostly used to test the test suite.
@@ -135,7 +135,7 @@ public class ExampleCorpusMatcher implements CorpusMatcher {
       }
 
       @Override
-      public Set<String> string(StringQuery string) {
+      public Set<String> phrase(PhraseQuery string) {
         if (string.getProximity().isPresent()) {
           Set<String> result = new HashSet<>();
           documents: for (Document doc : corpus.getDocuments()) {

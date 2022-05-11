@@ -25,10 +25,10 @@ public final class Terms {
   private Terms() {}
 
   public static boolean isVacuous(Term t) {
-    return t.getText().length() < 3 && !t.isWildcard();
+    return isVacuous(t.getText(), t.isWildcard());
   }
 
   public static boolean isVacuous(String text, boolean wildcard) {
-    return text.length() < 3 && !wildcard;
+    return !wildcard;
   }
 }

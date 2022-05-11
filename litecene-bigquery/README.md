@@ -17,7 +17,7 @@ This module does not support the following full-text search features:
 
 The BigQuery field to be searched must be "analyzed" using the following expression (or equivalent):
 
-    LOWER(TRIM(REGEXP_REPLACE(REGEXP_REPLACE(field, r"\p{M}", ''), r"[^a-zA-Z0-9]+", ' ')))
+    LOWER(TRIM(REGEXP_REPLACE(REGEXP_REPLACE(NORMALIZE(field, NFKD), r"\p{M}", ''), r"[^a-zA-Z0-9]+", ' ')))
 
 ### Using Materialized Views
 
@@ -33,7 +33,7 @@ The following query materialized view can be used to create a materialized view 
     SELECT
       id,
       text,
-      LOWER(TRIM(REGEXP_REPLACE(REGEXP_REPLACE(text, r"\p{M}", ''), r"[^a-zA-Z0-9]+", ' '))) AS analyzed
+      LOWER(TRIM(REGEXP_REPLACE(REGEXP_REPLACE(NORMALIZE(text, NFKD), r"\p{M}", ''), r"[^a-zA-Z0-9]+", ' '))) AS analyzed
     FROM
       `example.table` c
 

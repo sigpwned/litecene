@@ -24,12 +24,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 import org.junit.Test;
-import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.exception.EofException;
 import com.sigpwned.litecene.core.query.parse.QueryTokenizer;
 import com.sigpwned.litecene.core.query.parse.Token;
-import com.sigpwned.litecene.core.query.parse.token.StringToken;
+import com.sigpwned.litecene.core.query.parse.token.PhraseToken;
 import com.sigpwned.litecene.core.query.parse.token.TermToken;
 
 public class QueryTokenizerTest {
@@ -44,30 +44,27 @@ public class QueryTokenizerTest {
     } while (tokens.get(tokens.size() - 1).getType() != Token.Type.EOF);
 
     assertThat(tokens,
-        is(asList(new TermToken("hello", false), new TermToken("world", false), Token.AND,
-            Token.NOT, Token.OR, Token.LPAREN, Token.RPAREN, new TermToken("1234", false),
-            new StringToken(asList(new Term("yo", false), new Term("dawg", false)), null),
-            new StringToken(asList(new Term("proxim", false), new Term("ity", false)), 10),
+        is(asList(new TermToken("hello"), new TermToken("world"), Token.AND, Token.NOT, Token.OR,
+            Token.LPAREN, Token.RPAREN, new TermToken("1234"),
+            new PhraseToken("yo dawg", OptionalInt.empty()), new PhraseToken("proxim ity", 10),
             Token.EOF)));
 
   }
 
   @Test
-  public void shouldSplitOnNonAlphanumCharacters() {
+  public void shouldPerformWhitespaceTokenization() {
     QueryTokenizer ts = QueryTokenizer
-        .forString(" It's a hard knock life, for us. Ît’š á härd kñōćk lïfé, fór üś! ");
+        .forString(" It's a hard knock life, for us. Ît'š á härd kñōćk lïfé, fór üś! ");
 
     List<Token> tokens = new ArrayList<>();
     do {
       tokens.add(ts.next());
     } while (tokens.get(tokens.size() - 1).getType() != Token.Type.EOF);
 
-    assertThat(tokens, is(asList(new TermToken("it", false), new TermToken("s", false),
-        new TermToken("a", false), new TermToken("hard", false), new TermToken("knock", false),
-        new TermToken("life", false), new TermToken("for", false), new TermToken("us", false),
-        new TermToken("it", false), new TermToken("s", false), new TermToken("a", false),
-        new TermToken("hard", false), new TermToken("knock", false), new TermToken("life", false),
-        new TermToken("for", false), new TermToken("us", false), Token.EOF)));
+    assertThat(tokens, is(asList(new TermToken("It's"), new TermToken("a"), new TermToken("hard"),
+        new TermToken("knock"), new TermToken("life,"), new TermToken("for"), new TermToken("us."),
+        new TermToken("It's"), new TermToken("a"), new TermToken("hard"), new TermToken("knock"),
+        new TermToken("life,"), new TermToken("for"), new TermToken("us!"), Token.EOF)));
 
   }
 

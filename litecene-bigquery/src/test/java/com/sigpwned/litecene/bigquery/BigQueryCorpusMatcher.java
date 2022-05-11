@@ -29,14 +29,17 @@ import com.sigpwned.litecene.test.CorpusMatcher;
 public class BigQueryCorpusMatcher implements CorpusMatcher {
   @Override
   public Set<String> match(Corpus corpus, Query query) throws IOException {
-    String sql = String.format("WITH corpus AS (%s) SELECT DISTINCT id FROM corpus c WHERE (%s)",
+    String sql = String.format(
+        "WITH corpus AS (%s), analyzed AS (SELECT id, text, LOWER(TRIM(REGEXP_REPLACE(REGEXP_REPLACE(NORMALIZE(text, NFKD), r\"\\p{M}\", ''), r\"[^a-zA-Z0-9]+\", ' '))) AS analyzed FROM corpus) SELECT DISTINCT id FROM analyzed a WHERE (%s)",
         corpus.getDocuments().stream()
             .map(d -> String.format("SELECT %s AS id, %s AS text", emitString(d.getId()),
                 emitString(d.getText())))
             .collect(joining(" UNION ALL ")),
-        new BigQuerySearchCompiler("c.text", true).compile(query));
+        new BigQuerySearchCompiler("a.analyzed", true).compile(query));
 
     // TODO Run query
+
+    System.out.println(sql);
 
     throw new UnsupportedOperationException();
   }

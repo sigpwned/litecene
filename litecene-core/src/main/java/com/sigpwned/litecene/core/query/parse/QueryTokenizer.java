@@ -19,14 +19,11 @@
  */
 package com.sigpwned.litecene.core.query.parse;
 
-import static java.util.stream.Collectors.toList;
-import java.util.regex.Pattern;
 import com.sigpwned.litecene.core.NormalizedText;
-import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.exception.EofException;
 import com.sigpwned.litecene.core.exception.InvalidProximityException;
 import com.sigpwned.litecene.core.exception.UnrecognizedCharacterException;
-import com.sigpwned.litecene.core.query.parse.token.StringToken;
+import com.sigpwned.litecene.core.query.parse.token.PhraseToken;
 import com.sigpwned.litecene.core.query.parse.token.TermToken;
 import com.sigpwned.litecene.core.util.CodePointIterator;
 
@@ -38,8 +35,6 @@ public class QueryTokenizer {
   public static QueryTokenizer forNormalizedText(NormalizedText normalizedText) {
     return new QueryTokenizer(normalizedText);
   }
-
-  private static final Pattern SPACES = Pattern.compile("[ ]+");
 
   private Token next;
   private CodePointIterator iterator;
@@ -87,7 +82,7 @@ public class QueryTokenizer {
       case QUOTE: {
         buf.setLength(0);
         while (iterator.hasNext() && iterator.peek() != QUOTE) {
-          buf.appendCodePoint(transliterate(iterator.next()));
+          buf.appendCodePoint(iterator.next());
         }
         if (!iterator.hasNext())
           throw new EofException();
@@ -119,17 +114,16 @@ public class QueryTokenizer {
           proximity = null;
         }
 
-        return new StringToken(SPACES.splitAsStream(text.strip()).filter(t -> !t.isEmpty())
-            .map(Term::fromString).collect(toList()), proximity);
+        return new PhraseToken(text, proximity);
       }
       default: {
         if (!termy(ch))
           throw new UnrecognizedCharacterException();
 
         buf.setLength(0);
-        buf.appendCodePoint(transliterate(ch));
+        buf.appendCodePoint(ch);
         while (iterator.hasNext() && termy(iterator.peek())) {
-          buf.appendCodePoint(transliterate(iterator.next()));
+          buf.appendCodePoint(iterator.next());
         }
 
         String text = buf.toString();
@@ -142,33 +136,8 @@ public class QueryTokenizer {
           case NOT:
             return Token.NOT;
           default:
-            return new TermToken(Term.fromString(text));
+            return new TermToken(text);
         }
-      }
-    }
-  }
-
-  /**
-   * We only "index" alphanumerical content, plus meta characters. Anything else should be "read" as
-   * whitespace, which is to be ignored.
-   */
-  private int transliterate(int ch) {
-    if (ch >= 'a' && ch <= 'z') {
-      return ch;
-    } else if (ch >= 'A' && ch <= 'Z') {
-      return ch;
-    } else if (ch >= '0' && ch <= '9') {
-      return ch;
-    } else {
-      switch (ch) {
-        case STAR:
-        case LPAREN:
-        case RPAREN:
-        case QUOTE:
-        case TILDE:
-          return ch;
-        default:
-          return ' ';
       }
     }
   }
@@ -177,22 +146,36 @@ public class QueryTokenizer {
    * We only search for content that's alphanumerical. This method recognizes content that's
    * relevant to searching content. In particular, metacharacters are ignored.
    */
-  private boolean termy(int ch) {
-    switch (ch) {
-      case STAR:
-        return true;
+  private boolean termy(int cp) {
+    if (cp >= 0x7F) {
+      // 0x7F is DELETE. 0x80 and above is not 7-bit ASCII.
+      return false;
+    }
+    if (Character.isWhitespace(cp)) {
+      // There is no version of reality where whitespace is included in terms.
+      return false;
+    }
+    if (cp <= 0x20) {
+      // Everything 0x20 and below that isn't whitespace is control characters, which are not
+      // interesting.
+      return false;
+    }
+    switch (cp) {
       case LPAREN:
       case RPAREN:
       case QUOTE:
       case TILDE:
+        // These are metacharacters not allowed in a term
         return false;
+      case STAR:
       default:
-        return !Character.isWhitespace(transliterate(ch));
+        // Everything else is allowed
+        return true;
     }
   }
 
   private void ws() {
-    while (iterator.hasNext() && Character.isWhitespace(transliterate(iterator.peek())))
+    while (iterator.hasNext() && Character.isWhitespace(iterator.peek()))
       iterator.next();
   }
 }

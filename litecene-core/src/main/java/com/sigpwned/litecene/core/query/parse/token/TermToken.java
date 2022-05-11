@@ -19,38 +19,19 @@
  */
 package com.sigpwned.litecene.core.query.parse.token;
 
-import java.util.Objects;
-import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.linting.Generated;
 import com.sigpwned.litecene.core.query.parse.Token;
 
 public class TermToken extends Token {
-  private final boolean wildcard;
-
-  public TermToken(Term term) {
-    this(term.getText(), term.isWildcard());
-  }
-
-  public TermToken(String text, boolean wildcard) {
-    super(Type.TERM, text);
-    this.wildcard = wildcard;
-  }
-
-  /**
-   * @return the wildcard
-   */
   @Generated
-  public boolean isWildcard() {
-    return wildcard;
+  public TermToken(String text) {
+    super(Type.TERM, text);
   }
 
   @Override
   @Generated
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Objects.hash(wildcard);
-    return result;
+    return super.hashCode();
   }
 
   @Override
@@ -62,13 +43,12 @@ public class TermToken extends Token {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    TermToken other = (TermToken) obj;
-    return wildcard == other.wildcard;
+    return true;
   }
 
   @Override
   @Generated
   public String toString() {
-    return "TermToken [wildcard=" + wildcard + "]";
+    return "TermToken [getText()=" + getText() + "]";
   }
 }

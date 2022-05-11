@@ -19,42 +19,26 @@
  */
 package com.sigpwned.litecene.core.query.parse.token;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.joining;
-import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
-import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.linting.Generated;
 import com.sigpwned.litecene.core.query.parse.Token;
 
-public class StringToken extends Token {
-  private final List<Term> terms;
+public class PhraseToken extends Token {
   private final Integer proximity;
 
-  public StringToken(List<Term> terms, Integer proximity) {
-    super(Type.STRING, terms.stream().map(Objects::toString).collect(joining(" ")));
-    this.terms = unmodifiableList(terms);
+  @Generated
+  public PhraseToken(String text, OptionalInt proximity) {
+    this(text, proximity.isPresent() ? proximity.getAsInt() : null);
+  }
+
+  @Generated
+  public PhraseToken(String text, Integer proximity) {
+    super(Type.PHRASE, text);
     this.proximity = proximity;
   }
 
-  /**
-   * @return the terms
-   */
-  @Generated
-  public List<Term> getTerms() {
-    return terms;
-  }
-
-  /**
-   * @return the proximity
-   */
-  @Generated
-  public Integer getProximity() {
-    return proximity;
-  }
-
-  public OptionalInt getProxmity() {
+  public OptionalInt getProximity() {
     return proximity != null ? OptionalInt.of(proximity.intValue()) : OptionalInt.empty();
   }
 
@@ -63,7 +47,7 @@ public class StringToken extends Token {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + Objects.hash(proximity, terms);
+    result = prime * result + Objects.hash(proximity);
     return result;
   }
 
@@ -76,16 +60,13 @@ public class StringToken extends Token {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    StringToken other = (StringToken) obj;
-    return Objects.equals(proximity, other.proximity) && Objects.equals(terms, other.terms);
+    PhraseToken other = (PhraseToken) obj;
+    return Objects.equals(proximity, other.proximity);
   }
 
   @Override
   @Generated
   public String toString() {
-    final int maxLen = 10;
-    return "StringToken [terms="
-        + (terms != null ? terms.subList(0, Math.min(terms.size(), maxLen)) : null) + ", proximity="
-        + proximity + "]";
+    return "PhraseToken [proximity=" + proximity + ", getText()=" + getText() + "]";
   }
 }
