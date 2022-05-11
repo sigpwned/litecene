@@ -92,6 +92,20 @@ public abstract class QueryMatcherTest {
   }
 
   @Test
+  public void shouldMatchCheeseOnly3() throws IOException {
+    Set<String> matchIds =
+        matcher.match(corpus, Query.fromString("font*"));
+    assertThat(matchIds, is(Set.of(CHEESE_ID)));
+  }
+
+  @Test
+  public void shouldMatchCheeseOnly4() throws IOException {
+    Set<String> matchIds =
+        matcher.match(corpus, Query.fromString("\"font*\" AND \"melted cheese\""));
+    assertThat(matchIds, is(Set.of(CHEESE_ID)));
+  }
+
+  @Test
   public void shouldMatchPiratesOnly1() throws IOException {
     Set<String> matchIds = matcher.match(corpus, Query.fromString("\"spirits mizzenmast\"~4"));
     assertThat(matchIds, is(Set.of(PIRATE_ID)));
