@@ -150,13 +150,10 @@ public class ExampleQueryMatcher implements QueryMatcher {
                   .filter(i -> p.matcher(tokens.get(i)).matches()).boxed().collect(toList());
             }).collect(toList());
 
-            // If anything doesn't match, then we're done with this document
-            if (matches.stream().anyMatch(List::isEmpty))
-              continue;
-
             // If any permutation of matches fits in the given proximity, then this document
             // matches. Add its ID to the results and move onto the next document. Otherwise, we'll
-            // just fall through, and the ID won't get added.
+            // just fall through, and the ID won't get added. Note that if any of the lists are
+            // empty, then we will never match by definition of the cartesian product.
             for (List<Integer> permutation : Lists.cartesianProduct(matches)) {
               int min = permutation.stream().mapToInt(Integer::intValue).min()
                   .orElseThrow(AssertionError::new);
