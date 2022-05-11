@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene-test
+ * litecene-bigquery
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,12 +17,12 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.test.example;
+package com.sigpwned.litecene.bigquery;
 
-import com.sigpwned.litecene.test.QueryMatcherTest;
+import com.sigpwned.litecene.test.CorpusMatcherTest;
 
-public class ExampleQueryMatcherTest extends QueryMatcherTest {
-  public ExampleQueryMatcherTest() {
-    super(new ExampleQueryMatcher());
+public class BigQueryCorpusMatcherTest extends CorpusMatcherTest {
+  public BigQueryCorpusMatcherTest() {
+    super(new BigQueryCorpusMatcher());
   }
 }

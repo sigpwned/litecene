@@ -28,7 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import com.sigpwned.litecene.core.Query;
 
-public abstract class QueryMatcherTest {
+public abstract class CorpusMatcherTest {
   public static Corpus corpus;
 
   public static final String PIRATE_ID = "pirate";
@@ -66,9 +66,9 @@ public abstract class QueryMatcherTest {
     corpus = Corpus.of(asList(pirate, cupcake, cheese, hipster, office));
   }
 
-  public QueryMatcher matcher;
+  public CorpusMatcher matcher;
 
-  public QueryMatcherTest(QueryMatcher matcher) {
+  public CorpusMatcherTest(CorpusMatcher matcher) {
     this.matcher = matcher;
   }
 

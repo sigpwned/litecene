@@ -146,6 +146,7 @@
     <modules>
         <module>litecene-core</module>
         <module>litecene-test</module>
+        <module>litecene-bigquery</module>
     </modules>
 
     <!-- For releasing to maven central -->

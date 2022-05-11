@@ -45,12 +45,12 @@ import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.util.QueryProcessor;
 import com.sigpwned.litecene.test.Corpus;
 import com.sigpwned.litecene.test.Document;
-import com.sigpwned.litecene.test.QueryMatcher;
+import com.sigpwned.litecene.test.CorpusMatcher;
 
 /**
  * This is a toy in-memory matcher. It's mostly used to test the test suite.
  */
-public class ExampleQueryMatcher implements QueryMatcher {
+public class ExampleCorpusMatcher implements CorpusMatcher {
   @Override
   public Set<String> match(Corpus corpus, Query query) {
     return match2(Corpus.of(corpus.getDocuments().stream()
@@ -176,15 +176,18 @@ public class ExampleQueryMatcher implements QueryMatcher {
 
       @Override
       public Set<String> term(TermQuery term) {
-        Pattern p = compile(Term.of(term.getText(), term.isWildcard()));
+        Pattern p = compile(term.getText(), term.isWildcard());
         return corpus.getDocuments().stream().filter(d -> p.matcher(d.getText()).find())
             .map(Document::getId).collect(toSet());
       }
 
       private Pattern compile(Term term) {
-        StringBuilder pattern =
-            new StringBuilder().append("\\b\\Q").append(term.getText()).append("\\E");
-        if (term.isWildcard())
+        return compile(term.getText(), term.isWildcard());
+      }
+
+      private Pattern compile(String text, boolean wildcard) {
+        StringBuilder pattern = new StringBuilder().append("\\b\\Q").append(text).append("\\E");
+        if (wildcard)
           pattern.append("[a-z0-9]*");
         pattern.append("\\b");
         return Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE);
