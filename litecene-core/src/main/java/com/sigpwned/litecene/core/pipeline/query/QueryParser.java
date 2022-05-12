@@ -17,7 +17,7 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core.query.parse;
+package com.sigpwned.litecene.core.pipeline.query;
 
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toList;
@@ -29,7 +29,10 @@ import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import com.sigpwned.litecene.core.Query;
+import com.sigpwned.litecene.core.QueryPipeline;
 import com.sigpwned.litecene.core.Term;
+import com.sigpwned.litecene.core.Token;
+import com.sigpwned.litecene.core.TokenStream;
 import com.sigpwned.litecene.core.exception.EofException;
 import com.sigpwned.litecene.core.exception.UnmatchedParenthesisException;
 import com.sigpwned.litecene.core.exception.UnparsedTokenException;
@@ -42,26 +45,32 @@ import com.sigpwned.litecene.core.query.ParenQuery;
 import com.sigpwned.litecene.core.query.PhraseQuery;
 import com.sigpwned.litecene.core.query.TermQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
-import com.sigpwned.litecene.core.query.parse.token.PhraseToken;
-import com.sigpwned.litecene.core.query.parse.token.TermToken;
+import com.sigpwned.litecene.core.query.token.PhraseToken;
+import com.sigpwned.litecene.core.query.token.TermToken;
 
-public class QueryParser {
-  public Query query(QueryTokenizer ts) {
-    Query result = query1(ts);
+public class QueryParser implements QueryPipeline {
+  private final TokenStream ts;
+
+  public QueryParser(TokenStream ts) {
+    this.ts = ts;
+  }
+
+  public Query query() {
+    Query result = query1();
     if (ts.peek().getType() != Token.Type.EOF)
       throw new UnparsedTokenException();
     return result;
   }
 
   // X OR Y OR Z ...
-  private Query query1(QueryTokenizer ts) {
-    Query q = query2(ts);
+  private Query query1() {
+    Query q = query2();
     if (ts.peek().getType() == Token.Type.OR) {
       List<Query> children = new ArrayList<>();
       children.add(q);
       do {
         ts.next(); // OR
-        children.add(query2(ts));
+        children.add(query2());
       } while (ts.peek().getType() == Token.Type.OR);
       return new OrQuery(children);
     } else {
@@ -70,14 +79,14 @@ public class QueryParser {
   }
 
   // X AND Y AND Z ...
-  private Query query2(QueryTokenizer ts) {
-    Query q = query3(ts);
+  private Query query2() {
+    Query q = query3();
     if (ts.peek().getType() == Token.Type.AND) {
       List<Query> children = new ArrayList<>();
       children.add(q);
       do {
         ts.next(); // AND
-        children.add(query3(ts));
+        children.add(query3());
       } while (ts.peek().getType() == Token.Type.AND);
       return new AndQuery(children);
     } else {
@@ -89,13 +98,13 @@ public class QueryParser {
       EnumSet.of(Token.Type.LPAREN, Token.Type.NOT, Token.Type.PHRASE, Token.Type.TERM));
 
   // term term term ...
-  private Query query3(QueryTokenizer ts) {
-    Query q = query4(ts);
+  private Query query3() {
+    Query q = query4();
     if (LISTABLES.contains(ts.peek().getType())) {
       List<Query> children = new ArrayList<>();
       children.add(q);
       do {
-        children.add(query4(ts));
+        children.add(query4());
       } while (LISTABLES.contains(ts.peek().getType()));
       return new ListQuery(children);
     } else {
@@ -104,25 +113,25 @@ public class QueryParser {
   }
 
   // NOT X
-  private Query query4(QueryTokenizer ts) {
+  private Query query4() {
     if (ts.peek().getType() == Token.Type.NOT) {
       ts.next(); // NOT
-      return new NotQuery(query5(ts));
+      return new NotQuery(query5());
     } else {
-      return query5(ts);
+      return query5();
     }
   }
 
   // atoms
-  private Query query5(QueryTokenizer ts) {
-    return atom(ts);
+  private Query query5() {
+    return atom();
   }
 
   private static final Pattern ALNUM = Pattern.compile("[a-zA-Z0-9]+");
 
   private static final Pattern SPACES = Pattern.compile("\\p{javaWhitespace}+");
 
-  private Query atom(QueryTokenizer ts) {
+  private Query atom() {
     Token t = ts.next();
     switch (t.getType()) {
       case TERM: {
@@ -141,7 +150,7 @@ public class QueryParser {
         }
       }
       case PHRASE: {
-        PhraseToken pt = t.asString();
+        PhraseToken pt = t.asPhrase();
 
         String text = pt.getText();
 
@@ -173,7 +182,7 @@ public class QueryParser {
         }
       }
       case LPAREN: {
-        Query result = query1(ts);
+        Query result = query1();
         if (ts.next().getType() != Token.Type.RPAREN)
           throw new UnmatchedParenthesisException();
         return new ParenQuery(result);

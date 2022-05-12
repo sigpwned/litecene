@@ -19,18 +19,10 @@
  */
 package com.sigpwned.litecene.core;
 
-import com.sigpwned.litecene.core.query.parse.QueryParser;
-import com.sigpwned.litecene.core.query.parse.QueryTokenizer;
-import com.sigpwned.litecene.core.util.Queries;
-
 public abstract class Query {
-  public static Query fromString(String s) {
-    NormalizedText normalized = NormalizedText.normalize(s);
-    QueryTokenizer t = QueryTokenizer.forNormalizedText(normalized);
-    return Queries.simplify(new QueryParser().query(t));
-  }
-
-  // NOTE: This is not the natural opposite of Query#fromString.
+  /**
+   * Returns a syntactically-correct String representation of this query.
+   */
   @Override
   public abstract String toString();
 }

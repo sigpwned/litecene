@@ -17,38 +17,21 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core.query.parse.token;
+package com.sigpwned.litecene.core.query.token;
 
-import java.util.Objects;
-import java.util.OptionalInt;
+import com.sigpwned.litecene.core.Token;
 import com.sigpwned.litecene.core.linting.Generated;
-import com.sigpwned.litecene.core.query.parse.Token;
 
-public class PhraseToken extends Token {
-  private final Integer proximity;
-
+public class TermToken extends Token {
   @Generated
-  public PhraseToken(String text, OptionalInt proximity) {
-    this(text, proximity.isPresent() ? proximity.getAsInt() : null);
-  }
-
-  @Generated
-  public PhraseToken(String text, Integer proximity) {
-    super(Type.PHRASE, text);
-    this.proximity = proximity;
-  }
-
-  public OptionalInt getProximity() {
-    return proximity != null ? OptionalInt.of(proximity.intValue()) : OptionalInt.empty();
+  public TermToken(String text) {
+    super(Type.TERM, text);
   }
 
   @Override
   @Generated
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Objects.hash(proximity);
-    return result;
+    return super.hashCode();
   }
 
   @Override
@@ -60,13 +43,12 @@ public class PhraseToken extends Token {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    PhraseToken other = (PhraseToken) obj;
-    return Objects.equals(proximity, other.proximity);
+    return true;
   }
 
   @Override
   @Generated
   public String toString() {
-    return "PhraseToken [proximity=" + proximity + ", getText()=" + getText() + "]";
+    return "TermToken [getText()=" + getText() + "]";
   }
 }

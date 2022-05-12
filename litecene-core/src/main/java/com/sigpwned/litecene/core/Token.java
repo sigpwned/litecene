@@ -17,12 +17,13 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core.query.parse;
+package com.sigpwned.litecene.core;
 
 import java.util.Objects;
 import com.sigpwned.litecene.core.linting.Generated;
-import com.sigpwned.litecene.core.query.parse.token.PhraseToken;
-import com.sigpwned.litecene.core.query.parse.token.TermToken;
+import com.sigpwned.litecene.core.query.token.PhraseToken;
+import com.sigpwned.litecene.core.query.token.TermToken;
+import com.sigpwned.litecene.core.util.Syntax;
 
 public abstract class Token {
   private static class ConstantToken extends Token {
@@ -31,17 +32,38 @@ public abstract class Token {
     }
   }
 
+  /**
+   * Indicates the end of a {@link TokenStream}.
+   */
   public static final Token EOF = new ConstantToken(Type.EOF, "$");
 
-  public static final Token LPAREN = new ConstantToken(Type.LPAREN, "(");
+  /**
+   * Opens a query group
+   */
+  public static final Token LPAREN =
+      new ConstantToken(Type.LPAREN, new String(new int[] {Syntax.LPAREN}, 0, 1));
 
-  public static final Token RPAREN = new ConstantToken(Type.RPAREN, ")");
+  /**
+   * Closes a query group
+   */
+  public static final Token RPAREN =
+      new ConstantToken(Type.RPAREN, new String(new int[] {Syntax.RPAREN}, 0, 1));
 
-  public static final Token AND = new ConstantToken(Type.AND, "AND");
 
-  public static final Token OR = new ConstantToken(Type.OR, "OR");
+  /**
+   * Boolean "and" operator
+   */
+  public static final Token AND = new ConstantToken(Type.AND, Syntax.AND);
 
-  public static final Token NOT = new ConstantToken(Type.NOT, "NOT");
+  /**
+   * Boolean "or" operator
+   */
+  public static final Token OR = new ConstantToken(Type.OR, Syntax.OR);
+
+  /**
+   * Boolean "not" operator
+   */
+  public static final Token NOT = new ConstantToken(Type.NOT, Syntax.NOT);
 
   public static enum Type {
     AND, OR, NOT, TERM, PHRASE, LPAREN, RPAREN, EOF;
@@ -59,7 +81,7 @@ public abstract class Token {
     this.text = text;
   }
 
-  public PhraseToken asString() {
+  public PhraseToken asPhrase() {
     return (PhraseToken) this;
   }
 

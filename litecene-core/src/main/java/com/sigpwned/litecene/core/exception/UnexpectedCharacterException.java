@@ -21,7 +21,7 @@ package com.sigpwned.litecene.core.exception;
 
 import com.sigpwned.litecene.core.LiteceneException;
 
-public class UnrecognizedCharacterException extends LiteceneException {
+public class UnexpectedCharacterException extends LiteceneException {
   private static final long serialVersionUID = 3869894389490612709L;
 
 }

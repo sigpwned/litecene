@@ -26,16 +26,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
 import org.junit.Test;
+import com.sigpwned.litecene.core.Token;
 import com.sigpwned.litecene.core.exception.EofException;
-import com.sigpwned.litecene.core.query.parse.QueryTokenizer;
-import com.sigpwned.litecene.core.query.parse.Token;
-import com.sigpwned.litecene.core.query.parse.token.PhraseToken;
-import com.sigpwned.litecene.core.query.parse.token.TermToken;
+import com.sigpwned.litecene.core.query.token.PhraseToken;
+import com.sigpwned.litecene.core.query.token.TermToken;
+import com.sigpwned.litecene.core.stream.token.Tokenizer;
 
 public class QueryTokenizerTest {
   @Test
   public void shouldParseAllTokenTypes() {
-    QueryTokenizer ts = QueryTokenizer
+    Tokenizer ts = Tokenizer
         .forString("  hello world AND NOT OR ( ) 1234 \"yo dawg\" \"proxim ity\"~10  ");
 
     List<Token> tokens = new ArrayList<>();
@@ -53,7 +53,7 @@ public class QueryTokenizerTest {
 
   @Test
   public void shouldPerformWhitespaceTokenization() {
-    QueryTokenizer ts = QueryTokenizer
+    Tokenizer ts = Tokenizer
         .forString(" It's a hard knock life, for us. Ît'š á härd kñōćk lïfé, fór üś! ");
 
     List<Token> tokens = new ArrayList<>();
@@ -70,7 +70,7 @@ public class QueryTokenizerTest {
 
   @Test(expected = EofException.class)
   public void shouldFailToParseUnclosedString() {
-    QueryTokenizer ts = QueryTokenizer.forString("\"this string is not closed.");
+    Tokenizer ts = Tokenizer.forString("\"this string is not closed.");
     for (Token t = ts.next(); t.getType() != Token.Type.EOF; t = ts.next()) {
       // Ignore...
     }

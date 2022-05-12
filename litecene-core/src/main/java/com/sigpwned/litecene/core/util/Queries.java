@@ -19,8 +19,6 @@
  */
 package com.sigpwned.litecene.core.util;
 
-import static java.util.stream.Collectors.toList;
-import java.util.List;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.query.AndQuery;
 import com.sigpwned.litecene.core.query.ListQuery;
@@ -33,7 +31,7 @@ import com.sigpwned.litecene.core.query.VacuousQuery;
 
 public final class Queries {
   private Queries() {}
-  
+
   /**
    * Returns true if the given query is vacuous, which is to say has no meaningful standard for
    * filtering text. Example: a list query with no queries in it
@@ -78,106 +76,6 @@ public final class Queries {
       @Override
       public Boolean vacuous(VacuousQuery vacuous) {
         return true;
-      }
-    }).process(q);
-  }
-
-  /**
-   * Returns a simplified version of the given query that attempts to discard vacuous parts of the
-   * query. If the entire query is vacuous, then a {@link VacuousQuery} is returned.
-   */
-  public static Query simplify(Query q) {
-    return new QueryProcessor<Query>(new QueryProcessor.Processor<Query>() {
-      @Override
-      public Query and(AndQuery and) {
-        List<Query> cs = and.getChildren().stream().map(Queries::simplify)
-            .filter(c -> !Queries.isVacuous(c)).collect(toList());
-        if (cs.size() == and.getChildren().size())
-          return and;
-        else if (cs.size() == 0)
-          return VacuousQuery.INSTANCE;
-        else if (cs.size() == 1)
-          return cs.get(0);
-        else
-          return new AndQuery(cs);
-      }
-
-      @Override
-      public Query or(OrQuery or) {
-        List<Query> cs = or.getChildren().stream().map(Queries::simplify)
-            .filter(c -> !Queries.isVacuous(c)).collect(toList());
-        if (cs.size() == or.getChildren().size())
-          return or;
-        else if (cs.size() == 0)
-          return VacuousQuery.INSTANCE;
-        else if (cs.size() == 1)
-          return cs.get(0);
-        else
-          return new OrQuery(cs);
-      }
-
-      @Override
-      public Query not(NotQuery not) {
-        Query c = Queries.simplify(not.getChild());
-        if (Queries.isVacuous(c))
-          return VacuousQuery.INSTANCE;
-        else if (c.equals(not.getChild()))
-          return not;
-        else
-          return new NotQuery(c);
-      }
-
-      @Override
-      public Query list(ListQuery list) {
-        List<Query> cs = list.getChildren().stream().map(Queries::simplify)
-            .filter(c -> !Queries.isVacuous(c)).collect(toList());
-        if (cs.size() == list.getChildren().size())
-          return list;
-        else if (cs.size() == 0)
-          return VacuousQuery.INSTANCE;
-        else if (cs.size() == 1)
-          return cs.get(0);
-        else
-          return new ListQuery(cs);
-      }
-
-      @Override
-      public Query paren(ParenQuery paren) {
-        Query c = Queries.simplify(paren.getChild());
-        if (Queries.isVacuous(c))
-          return VacuousQuery.INSTANCE;
-        else if (c instanceof ParenQuery || c instanceof PhraseQuery || c instanceof TermQuery
-            || c instanceof NotQuery) {
-          // These queries are atomic and can safely be unpacked
-          return c;
-        } else if (c.equals(paren.getChild()))
-          return paren;
-        else
-          return new ParenQuery(c);
-      }
-
-      @Override
-      public Query phrase(PhraseQuery phrase) {
-        phrase = new PhraseQuery(
-            phrase.getTerms().stream().filter(t -> !Terms.isVacuous(t)).collect(toList()),
-            phrase.getProximity());
-        if (Queries.isVacuous(phrase))
-          return VacuousQuery.INSTANCE;
-        else
-          return phrase;
-      }
-
-      @Override
-      public Query term(TermQuery term) {
-        if (Queries.isVacuous(term))
-          return VacuousQuery.INSTANCE;
-        else
-          return term;
-      }
-
-      @Override
-      public Query vacuous(VacuousQuery vacuous) {
-        return vacuous;
       }
     }).process(q);
   }

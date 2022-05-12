@@ -17,31 +17,37 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core.query.parse;
+package com.sigpwned.litecene.core.stream.token;
 
-import com.sigpwned.litecene.core.NormalizedText;
+import com.sigpwned.litecene.core.CodePointStream;
+import com.sigpwned.litecene.core.Token;
+import com.sigpwned.litecene.core.TokenStream;
 import com.sigpwned.litecene.core.exception.EofException;
 import com.sigpwned.litecene.core.exception.InvalidProximityException;
-import com.sigpwned.litecene.core.exception.UnrecognizedCharacterException;
-import com.sigpwned.litecene.core.query.parse.token.PhraseToken;
-import com.sigpwned.litecene.core.query.parse.token.TermToken;
-import com.sigpwned.litecene.core.util.CodePointIterator;
+import com.sigpwned.litecene.core.query.token.PhraseToken;
+import com.sigpwned.litecene.core.query.token.TermToken;
+import com.sigpwned.litecene.core.stream.codepoint.StringCodePointSource;
+import com.sigpwned.litecene.core.util.Syntax;
 
-public class QueryTokenizer {
-  public static QueryTokenizer forString(String s) {
-    return forNormalizedText(NormalizedText.normalize(s));
+/**
+ * Implements whitespace-separated and metacharacter recognition tokenization.
+ */
+public class Tokenizer implements TokenStream {
+  public static Tokenizer forString(String s) {
+    return forCodePoints(new StringCodePointSource(s));
   }
 
-  public static QueryTokenizer forNormalizedText(NormalizedText normalizedText) {
-    return new QueryTokenizer(normalizedText);
+  public static Tokenizer forCodePoints(CodePointStream stream) {
+    return new Tokenizer(stream);
   }
 
+
+  private final CodePointStream stream;
   private Token next;
-  private CodePointIterator iterator;
   private StringBuilder buf;
 
-  public QueryTokenizer(NormalizedText normalizedText) {
-    this.iterator = CodePointIterator.forString(normalizedText.getNormalizedText());
+  public Tokenizer(CodePointStream stream) {
+    this.stream = stream;
     this.buf = new StringBuilder();
   }
 
@@ -57,50 +63,49 @@ public class QueryTokenizer {
     return result;
   }
 
-  private static final int LPAREN = '(';
-  private static final int RPAREN = ')';
-  private static final int QUOTE = '"';
-  private static final int TILDE = '~';
-  private static final int STAR = '*';
+  private static final int LPAREN = Syntax.LPAREN;
+  private static final int RPAREN = Syntax.RPAREN;
+  private static final int QUOTE = Syntax.QUOTE;
+  private static final int TILDE = Syntax.TILDE;
 
-  private static final String AND = "AND";
-  private static final String OR = "OR";
-  private static final String NOT = "NOT";
+  private static final String AND = Syntax.AND;
+  private static final String OR = Syntax.OR;
+  private static final String NOT = Syntax.NOT;
 
   private Token tok() {
     ws();
 
-    if (!iterator.hasNext())
+    if (!stream.hasNext())
       return Token.EOF;
 
-    int ch = iterator.next();
-    switch (ch) {
+    int cp = stream.next();
+    switch (cp) {
       case LPAREN:
         return Token.LPAREN;
       case RPAREN:
         return Token.RPAREN;
       case QUOTE: {
         buf.setLength(0);
-        while (iterator.hasNext() && iterator.peek() != QUOTE) {
-          buf.appendCodePoint(iterator.next());
+        while (stream.hasNext() && stream.peek() != QUOTE) {
+          buf.appendCodePoint(stream.next());
         }
-        if (!iterator.hasNext())
+        if (!stream.hasNext())
           throw new EofException();
-        if (iterator.next() != QUOTE)
+        if (stream.next() != QUOTE)
           throw new AssertionError("expected quote");
 
         String text = buf.toString();
 
         Integer proximity;
-        if (iterator.peek() == TILDE) {
-          iterator.next(); // TILDE
-          if (!Character.isDigit(iterator.peek()))
+        if (stream.peek() == TILDE) {
+          stream.next(); // TILDE
+          if (!Character.isDigit(stream.peek()))
             throw new InvalidProximityException();
 
           buf.setLength(0);
           do {
-            buf.appendCodePoint(iterator.next());
-          } while (Character.isDigit(iterator.peek()));
+            buf.appendCodePoint(stream.next());
+          } while (Character.isDigit(stream.peek()));
 
           try {
             proximity = Integer.parseInt(buf.toString());
@@ -117,13 +122,10 @@ public class QueryTokenizer {
         return new PhraseToken(text, proximity);
       }
       default: {
-        if (!termy(ch))
-          throw new UnrecognizedCharacterException();
-
         buf.setLength(0);
-        buf.appendCodePoint(ch);
-        while (iterator.hasNext() && termy(iterator.peek())) {
-          buf.appendCodePoint(iterator.next());
+        buf.appendCodePoint(cp);
+        while (stream.hasNext() && termy(stream.peek())) {
+          buf.appendCodePoint(stream.next());
         }
 
         String text = buf.toString();
@@ -143,39 +145,29 @@ public class QueryTokenizer {
   }
 
   /**
-   * We only search for content that's alphanumerical. This method recognizes content that's
-   * relevant to searching content. In particular, metacharacters are ignored.
+   * Tokens are separated by whitespace or metacharacters
    */
   private boolean termy(int cp) {
-    if (cp >= 0x7F) {
-      // 0x7F is DELETE. 0x80 and above is not 7-bit ASCII.
-      return false;
-    }
     if (Character.isWhitespace(cp)) {
       // There is no version of reality where whitespace is included in terms.
       return false;
-    }
-    if (cp <= 0x20) {
-      // Everything 0x20 and below that isn't whitespace is control characters, which are not
-      // interesting.
-      return false;
-    }
-    switch (cp) {
-      case LPAREN:
-      case RPAREN:
-      case QUOTE:
-      case TILDE:
-        // These are metacharacters not allowed in a term
-        return false;
-      case STAR:
-      default:
-        // Everything else is allowed
-        return true;
+    } else {
+      switch (cp) {
+        case LPAREN:
+        case RPAREN:
+        case QUOTE:
+        case TILDE:
+          // These are metacharacters not allowed in a term
+          return false;
+        default:
+          // Everything else is allowed
+          return true;
+      }
     }
   }
 
   private void ws() {
-    while (iterator.hasNext() && Character.isWhitespace(iterator.peek()))
-      iterator.next();
+    while (stream.hasNext() && Character.isWhitespace(stream.peek()))
+      stream.next();
   }
 }

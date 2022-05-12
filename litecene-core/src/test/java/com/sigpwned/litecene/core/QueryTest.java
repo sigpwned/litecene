@@ -23,17 +23,17 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Test;
+import com.sigpwned.litecene.core.pipeline.query.QueryParser;
 import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.TermQuery;
-import com.sigpwned.litecene.core.query.parse.QueryParser;
-import com.sigpwned.litecene.core.query.parse.QueryTokenizer;
+import com.sigpwned.litecene.core.stream.token.Tokenizer;
 import com.sigpwned.litecene.core.util.Queries;
 
 public class QueryTest {
   @Test
   public void shouldConvertQueryWithNoDroppedCharactersToStringProperly() {
     final String input = "hello OR world AND (foobar AND NOT quux pants) AND \"alpha bravo\"~10";
-    final String output = new QueryParser().query(QueryTokenizer.forString(input)).toString();
+    final String output = new QueryParser().query(Tokenizer.forString(input)).toString();
     assertThat(output, is(input));
   }
 
@@ -41,7 +41,7 @@ public class QueryTest {
   public void shouldSimplifyVacuousAndNotProperly() {
     final String input = "hello AND NOT \"阿弥陀佛\"";
     final String output =
-        Queries.simplify(new QueryParser().query(QueryTokenizer.forString(input))).toString();
+        Queries.simplify(new QueryParser().query(Tokenizer.forString(input))).toString();
     assertThat(output, is("hello"));
   }
 
@@ -49,14 +49,14 @@ public class QueryTest {
   public void shouldSimplifyVacuousOrNotProperly() {
     final String input = "hello OR NOT \"阿弥陀佛\"";
     final String output =
-        Queries.simplify(new QueryParser().query(QueryTokenizer.forString(input))).toString();
+        Queries.simplify(new QueryParser().query(Tokenizer.forString(input))).toString();
     assertThat(output, is("hello"));
   }
 
   @Test
   public void shouldSimplifyDroppedTermsProperly() {
     final String input = "hello 南无阿弥陀佛 world*";
-    final Query output = Queries.simplify(new QueryParser().query(QueryTokenizer.forString(input)));
+    final Query output = Queries.simplify(new QueryParser().query(Tokenizer.forString(input)));
     assertThat(output,
         is(new ListQuery(asList(new TermQuery("hello", false), new TermQuery("world", true)))));
   }
