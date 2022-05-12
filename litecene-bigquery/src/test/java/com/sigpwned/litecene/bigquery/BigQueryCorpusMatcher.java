@@ -20,8 +20,15 @@
 package com.sigpwned.litecene.bigquery;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.Set;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.BigQueryOptions;
+import com.google.cloud.bigquery.QueryJobConfiguration;
+import com.google.cloud.bigquery.TableResult;
+import com.google.common.collect.Streams;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.test.Corpus;
 import com.sigpwned.litecene.test.CorpusMatcher;
@@ -36,12 +43,23 @@ public class BigQueryCorpusMatcher implements CorpusMatcher {
                 emitString(d.getText())))
             .collect(joining(" UNION ALL ")),
         new BigQuerySearchCompiler("a.analyzed", true).compile(query));
-
-    // TODO Run query
-
+    
     System.out.println(sql);
 
-    throw new UnsupportedOperationException();
+    BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
+
+    QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(sql).build();
+
+    TableResult results;
+    try {
+      results = bigquery.query(queryConfig);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new InterruptedIOException();
+    }
+
+    return Streams.stream(results.iterateAll()).map(row -> row.get("id").getStringValue())
+        .collect(toSet());
   }
 
   private String emitString(String s) {

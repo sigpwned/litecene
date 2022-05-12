@@ -22,6 +22,7 @@ package com.sigpwned.litecene.bigquery.util;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toSet;
+import java.util.HashSet;
 import java.util.Set;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.query.AndQuery;
@@ -65,7 +66,7 @@ public final class MoreQueries {
        */
       @Override
       public Set<String> or(OrQuery or) {
-        Set<String> result = requiredTokens(or.getChildren().get(0));
+        Set<String> result = new HashSet<>(requiredTokens(or.getChildren().get(0)));
         for (int i = 1; i < or.getChildren().size(); i++) {
           result.retainAll(requiredTokens(or.getChildren().get(i)));
           if (result.isEmpty()) {

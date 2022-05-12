@@ -29,6 +29,6 @@ public final class Terms {
   }
 
   public static boolean isVacuous(String text, boolean wildcard) {
-    return !wildcard;
+    return text.isEmpty() && !wildcard;
   }
 }

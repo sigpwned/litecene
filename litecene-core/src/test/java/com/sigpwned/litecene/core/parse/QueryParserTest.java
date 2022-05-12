@@ -22,11 +22,14 @@ package com.sigpwned.litecene.core.parse;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import java.util.OptionalInt;
 import org.junit.Test;
 import com.sigpwned.litecene.core.Query;
+import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.query.AndQuery;
 import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
+import com.sigpwned.litecene.core.query.PhraseQuery;
 import com.sigpwned.litecene.core.query.TermQuery;
 
 public class QueryParserTest {
@@ -55,9 +58,9 @@ public class QueryParserTest {
   @Test
   public void shouldTolerateDroppedCharacters() {
     Query q = Query.fromString("hello's 南无阿弥陀佛 world AND foobar");
-    assertThat(q,
-        is(new AndQuery(
-            asList(new ListQuery(asList(new TermQuery("hello", false), new TermQuery("s", false),
-                new TermQuery("world", false))), new TermQuery("foobar", false)))));
+    assertThat(q, is(new AndQuery(asList(
+        new ListQuery(asList(new PhraseQuery(asList(new Term("hello", false), new Term("s", false)),
+            OptionalInt.empty()), new TermQuery("world", false))),
+        new TermQuery("foobar", false)))));
   }
 }
