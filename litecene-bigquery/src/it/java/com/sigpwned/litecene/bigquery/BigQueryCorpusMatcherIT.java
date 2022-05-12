@@ -21,8 +21,8 @@ package com.sigpwned.litecene.bigquery;
 
 import com.sigpwned.litecene.test.CorpusMatcherTest;
 
-public class BigQueryCorpusMatcherTest extends CorpusMatcherTest {
-  public BigQueryCorpusMatcherTest() {
+public class BigQueryCorpusMatcherIT extends CorpusMatcherTest {
+  public BigQueryCorpusMatcherIT() {
     super(new BigQueryCorpusMatcher());
   }
 }

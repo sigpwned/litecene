@@ -44,8 +44,6 @@ public class BigQueryCorpusMatcher implements CorpusMatcher {
             .collect(joining(" UNION ALL ")),
         new BigQuerySearchCompiler("a.analyzed", true).compile(query));
     
-    System.out.println(sql);
-
     BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
 
     QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(sql).build();
