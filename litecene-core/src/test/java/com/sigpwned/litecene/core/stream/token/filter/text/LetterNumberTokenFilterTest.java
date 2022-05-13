@@ -39,4 +39,6 @@ public class LetterNumberTokenFilterTest {
     assertThat(tokens, is(asList(Token.AND, Token.LPAREN, Token.OR, Token.NOT, Token.RPAREN,
         new TextToken(asList(Term.fromString("füñkÿ123 z")), OptionalInt.empty()))));
   }
+
+  // TODO Proximity change test
 }

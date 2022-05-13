@@ -39,4 +39,6 @@ public class PrintableAsciiTokenFilterTest {
     assertThat(tokens, is(asList(Token.AND, Token.LPAREN, Token.OR, Token.NOT, Token.RPAREN,
         new TextToken(asList(Term.fromString("f k")), OptionalInt.empty()))));
   }
+
+  // TODO Proximity change test
 }
