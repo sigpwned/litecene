@@ -109,6 +109,21 @@ public abstract class CorpusMatcherTest {
   }
 
   @Test
+  public void shouldMatchPiratesOnly2() throws IOException {
+    // The "crow's" token will get split into two parts, "crow s", in any query handler that ignores
+    // punctuation. We need to make sure that case get's handled appropriately.
+    Set<String> matchIds = matcher.match(corpus, parseQuery("\"crow's nest\"~4"));
+    assertThat(matchIds, is(Set.of(PIRATE_ID)));
+  }
+
+  @Test
+  public void shouldMatchPiratesOnly3() throws IOException {
+    // We should test the multitoken behavior from shouldMatchPiratesOnly2, with a wildcard.
+    Set<String> matchIds = matcher.match(corpus, parseQuery("\"crow's* nest*\"~4"));
+    assertThat(matchIds, is(Set.of(PIRATE_ID)));
+  }
+
+  @Test
   public void shouldNotMatchPiratesOnly1() throws IOException {
     Set<String> matchIds = matcher.match(corpus, parseQuery("\"spirits mizzenmast\"~2"));
     assertThat(matchIds, is(Set.of()));
