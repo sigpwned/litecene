@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.IntStream;
-import com.sigpwned.litecene.bigquery.util.MoreQueries;
+import com.sigpwned.litecene.bigquery.util.BigQueryQueries;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.query.AndQuery;
@@ -33,8 +33,7 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.PhraseQuery;
-import com.sigpwned.litecene.core.query.TermQuery;
+import com.sigpwned.litecene.core.query.TextQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.util.QueryProcessor;
 
@@ -87,7 +86,7 @@ public class BigQuerySearchCompiler {
    * field.
    */
   public String compile(Query q) {
-    if (MoreQueries.isFullySearchable(q)) {
+    if (BigQueryQueries.isFullySearchable(q)) {
       return String.format("(%s)", searchPredicate(q));
     } else if (isIndexed()) {
       return String.format("((%s) AND (%s))", searchPredicate(q), regexPredicate(q));
@@ -101,7 +100,7 @@ public class BigQuerySearchCompiler {
    * that must all appear in the text being searched. This implements that predicate when possible.
    */
   private String searchPredicate(Query q) {
-    Set<String> requiredTokens = MoreQueries.requiredTokens(q);
+    Set<String> requiredTokens = BigQueryQueries.requiredTokens(q);
     if (requiredTokens.isEmpty()) {
       // There are no tokens required by the query. Trivially match.
       return "TRUE";
@@ -150,15 +149,15 @@ public class BigQuerySearchCompiler {
        * We use a combination of regular expressions to find the string tokens
        */
       @Override
-      public String phrase(PhraseQuery string) {
-        if (string.getProximity().isPresent()) {
+      public String text(TextQuery text) {
+        if (text.getProximity().isPresent()) {
           // The tokens don't have to be in order, but they do have to be close to each other. We
           // create a table of acceptable tokens for each search term and then filter the cartesian
           // product based on proximity.
-          int proximity = string.getProximity().getAsInt();
+          int proximity = text.getProximity().getAsInt();
 
-          List<ProximityTerm> terms = IntStream.range(0, string.getTerms().size())
-              .mapToObj(i -> proximityTermFromTermIndex(i, string.getTerms().get(i)))
+          List<ProximityTerm> terms = IntStream.range(0, text.getTerms().size())
+              .mapToObj(i -> proximityTermFromTermIndex(i, text.getTerms().get(i)))
               .collect(toList());
 
           return String.format(
@@ -170,17 +169,8 @@ public class BigQuerySearchCompiler {
         } else {
           // The tokens must be in order. We simply search for all the regular expressions in order
           return String.format("REGEXP_CONTAINS(%s, r\"%s\")", field,
-              string.getTerms().stream().map(t -> pattern(t)).collect(joining(" ")));
+              text.getTerms().stream().map(t -> pattern(t)).collect(joining(" ")));
         }
-      }
-
-      /**
-       * We use a simple regular expression to find this term
-       */
-      @Override
-      public String term(TermQuery term) {
-        return String.format("REGEXP_CONTAINS(%s, r\"%s\")", field,
-            pattern(term.getText(), term.isWildcard()));
       }
 
       /**

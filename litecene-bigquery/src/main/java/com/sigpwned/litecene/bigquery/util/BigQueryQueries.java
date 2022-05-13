@@ -20,24 +20,61 @@
 package com.sigpwned.litecene.bigquery.util;
 
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toSet;
 import java.util.HashSet;
 import java.util.Set;
 import com.sigpwned.litecene.core.Query;
+import com.sigpwned.litecene.core.QueryPipeline;
+import com.sigpwned.litecene.core.pipeline.query.QueryParser;
+import com.sigpwned.litecene.core.pipeline.query.filter.SimplifyQueryFilterPipeline;
 import com.sigpwned.litecene.core.query.AndQuery;
 import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.PhraseQuery;
-import com.sigpwned.litecene.core.query.TermQuery;
+import com.sigpwned.litecene.core.query.TextQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
+import com.sigpwned.litecene.core.stream.codepoint.StringCodePointSource;
+import com.sigpwned.litecene.core.stream.codepoint.filter.SmartQuotesCodePointFilter;
+import com.sigpwned.litecene.core.stream.token.Tokenizer;
+import com.sigpwned.litecene.core.stream.token.filter.text.LetterNumberTokenFilter;
+import com.sigpwned.litecene.core.stream.token.filter.text.LowercaseTokenFilter;
+import com.sigpwned.litecene.core.stream.token.filter.text.NormalizeTokenFilter;
+import com.sigpwned.litecene.core.stream.token.filter.text.PrintableAsciiTokenFilter;
 import com.sigpwned.litecene.core.util.Queries;
 import com.sigpwned.litecene.core.util.QueryProcessor;
 
-public final class MoreQueries {
-  private MoreQueries() {}
+public final class BigQueryQueries {
+  private BigQueryQueries() {}
+
+  /**
+   * Matches recommended BigQuery analysis expression
+   * 
+   * @see #recommendedAnalysisExpr(String)
+   */
+  public static QueryPipeline recommendedQueryPipeline(String q) {
+    return new SimplifyQueryFilterPipeline(new QueryParser(new LowercaseTokenFilter(
+        new LetterNumberTokenFilter(new PrintableAsciiTokenFilter(new NormalizeTokenFilter(
+            new Tokenizer(new SmartQuotesCodePointFilter(new StringCodePointSource(q)))))))));
+  }
+
+  /**
+   * Parses a query using the recommended query pipeline
+   * 
+   * @see #recommendedQueryPipeline(String)
+   */
+  public static Query recommendedParseQuery(String q) {
+    return recommendedQueryPipeline(q).query();
+  }
+
+  /**
+   * Performs a reasonable analysis of text using BigQuery SQL
+   */
+  public static String recommendedAnalysisExpr(String field) {
+    return String.format(
+        "LOWER(TRIM(REGEXP_REPLACE(REGEXP_REPLACE(NORMALIZE(%s, NFKD), r\"\\p{M}\", ''), r\"[^a-zA-Z0-9]+\", ' ')))",
+        field);
+  }
 
   /**
    * Calculates the tokens that must be present in a document for the given query to match. The
@@ -117,21 +154,9 @@ public final class MoreQueries {
        * Example: "hell* world" -> [ world ]
        */
       @Override
-      public Set<String> phrase(PhraseQuery string) {
-        return string.getTerms().stream().filter(t -> !t.isWildcard()).map(t -> t.getText())
+      public Set<String> text(TextQuery text) {
+        return text.getTerms().stream().filter(t -> !t.isWildcard()).map(t -> t.getText())
             .collect(toSet());
-      }
-
-      /**
-       * For a term query, if the term is not a wildcard, then we require the term.
-       * 
-       * Exmaple: hello -> [ hello ]
-       * 
-       * Example: hell* -> [ ]
-       */
-      @Override
-      public Set<String> term(TermQuery term) {
-        return term.isWildcard() ? emptySet() : singleton(term.getText());
       }
 
       /**
@@ -160,7 +185,7 @@ public final class MoreQueries {
        */
       @Override
       public Boolean and(AndQuery and) {
-        return and.getChildren().stream().allMatch(MoreQueries::isFullySearchable);
+        return and.getChildren().stream().allMatch(BigQueryQueries::isFullySearchable);
       }
 
       /**
@@ -189,7 +214,7 @@ public final class MoreQueries {
        */
       @Override
       public Boolean list(ListQuery list) {
-        return list.getChildren().stream().allMatch(MoreQueries::isFullySearchable);
+        return list.getChildren().stream().allMatch(BigQueryQueries::isFullySearchable);
       }
 
       /**
@@ -213,20 +238,8 @@ public final class MoreQueries {
        * Example: "hello world" -> false
        */
       @Override
-      public Boolean phrase(PhraseQuery string) {
-        return string.getTerms().size() == 1 && !string.getTerms().get(0).isWildcard();
-      }
-
-      /**
-       * For a term query, we are fully searchable if we are not a wildcard.
-       * 
-       * Exmaple: hello -> true
-       * 
-       * Example: hell* -> false
-       */
-      @Override
-      public Boolean term(TermQuery term) {
-        return !term.isWildcard();
+      public Boolean text(TextQuery text) {
+        return text.getTerms().size() == 1 && !text.getTerms().get(0).isWildcard();
       }
 
       /**
