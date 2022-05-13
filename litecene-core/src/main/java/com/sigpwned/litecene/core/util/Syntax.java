@@ -1,5 +1,7 @@
 package com.sigpwned.litecene.core.util;
 
+import java.util.regex.Pattern;
+
 public final class Syntax {
   private Syntax() {}
 
@@ -42,4 +44,9 @@ public final class Syntax {
    * The NOT keyword is the boolean "not" operator
    */
   public static final String NOT = "NOT";
+
+  /**
+   * One or more contiguous whitespace characters
+   */
+  public static final Pattern WHITESPACE = Pattern.compile("\\p{javaWhitespace}+");
 }

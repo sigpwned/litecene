@@ -10,8 +10,7 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.PhraseQuery;
-import com.sigpwned.litecene.core.query.TermQuery;
+import com.sigpwned.litecene.core.query.TextQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.util.Queries;
 import com.sigpwned.litecene.core.util.QueryProcessor;
@@ -90,8 +89,7 @@ public class SimplifyFilterQueryPipeline extends FilterQueryPipeline {
         Query c = simplify(paren.getChild());
         if (Queries.isVacuous(c))
           return VacuousQuery.INSTANCE;
-        else if (c instanceof ParenQuery || c instanceof PhraseQuery || c instanceof TermQuery
-            || c instanceof NotQuery) {
+        else if (c instanceof ParenQuery || c instanceof TextQuery || c instanceof NotQuery) {
           // These queries are atomic and can safely be unpacked
           return c;
         } else if (c.equals(paren.getChild()))
@@ -101,22 +99,14 @@ public class SimplifyFilterQueryPipeline extends FilterQueryPipeline {
       }
 
       @Override
-      public Query phrase(PhraseQuery phrase) {
-        phrase = new PhraseQuery(
-            phrase.getTerms().stream().filter(t -> !Terms.isVacuous(t)).collect(toList()),
-            phrase.getProximity());
-        if (Queries.isVacuous(phrase))
+      public Query text(TextQuery text) {
+        text = new TextQuery(
+            text.getTerms().stream().filter(t -> !Terms.isVacuous(t)).collect(toList()),
+            text.getProximity());
+        if (Queries.isVacuous(text))
           return VacuousQuery.INSTANCE;
         else
-          return phrase;
-      }
-
-      @Override
-      public Query term(TermQuery term) {
-        if (Queries.isVacuous(term))
-          return VacuousQuery.INSTANCE;
-        else
-          return term;
+          return text;
       }
 
       @Override

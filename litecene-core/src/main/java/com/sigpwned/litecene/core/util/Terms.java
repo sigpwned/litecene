@@ -19,6 +19,8 @@
  */
 package com.sigpwned.litecene.core.util;
 
+import static java.util.stream.Collectors.toList;
+import java.util.List;
 import com.sigpwned.litecene.core.Term;
 
 public final class Terms {
@@ -30,5 +32,26 @@ public final class Terms {
 
   public static boolean isVacuous(String text, boolean wildcard) {
     return text.isEmpty() && !wildcard;
+  }
+
+  public static List<String> tokenize(String s) {
+    return Syntax.WHITESPACE.splitAsStream(s.strip()).collect(toList());
+  }
+
+  /**
+   * Returns the number of "tokens" inside this term.
+   * 
+   * Example: text="", wildcard=true -> 1
+   * 
+   * Example: text="what s up pussycat", wildcard=false -> 4
+   * 
+   * Example: text="what s up pussycat", wildcard=true -> 4
+   */
+  public static int size(Term t) {
+    if (t.getText().isEmpty() && t.isWildcard()) {
+      return 1;
+    } else {
+      return Math.toIntExact(Syntax.WHITESPACE.splitAsStream(t.getText()).count());
+    }
   }
 }

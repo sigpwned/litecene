@@ -26,41 +26,48 @@ import java.util.OptionalInt;
 import org.junit.Test;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.Term;
+import com.sigpwned.litecene.core.pipeline.query.QueryParser;
 import com.sigpwned.litecene.core.query.AndQuery;
 import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
-import com.sigpwned.litecene.core.query.PhraseQuery;
-import com.sigpwned.litecene.core.query.TermQuery;
+import com.sigpwned.litecene.core.query.TextQuery;
+import com.sigpwned.litecene.core.stream.codepoint.StringCodePointSource;
+import com.sigpwned.litecene.core.stream.token.Tokenizer;
 
 public class QueryParserTest {
+  public static Query parseQuery(String s) {
+    return new QueryParser(new Tokenizer(new StringCodePointSource(s))).query();
+  }
+
   @Test
   public void shouldParseSingleTerm() {
-    Query q = Query.fromString("hello");
-    assertThat(q, is(new TermQuery("hello", false)));
+    Query q = parseQuery("hello");
+    assertThat(q, is(new TextQuery(asList(Term.fromString("hello")), OptionalInt.empty())));
   }
 
   @Test
   public void shouldParseBooleanQuery() {
-    Query q = Query.fromString("hello OR world AND foobar");
-    assertThat(q, is(new OrQuery(asList(new TermQuery("hello", false),
-        new AndQuery(asList(new TermQuery("world", false), new TermQuery("foobar", false)))))));
+    Query q = parseQuery("hello OR world AND foobar");
+    assertThat(q,
+        is(new OrQuery(asList(new TextQuery(asList(Term.fromString("hello")), OptionalInt.empty()),
+            new AndQuery(
+                asList(new TextQuery(asList(Term.fromString("world")), OptionalInt.empty()),
+                    new TextQuery(asList(Term.fromString("foobar")), OptionalInt.empty())))))));
+  }
+
+  @Test
+  public void shouldParseProximity() {
+    Query q = parseQuery("\"hello world\"~10");
+    assertThat(q, is(new TextQuery(asList(Term.fromString("hello"), Term.fromString("world")),
+        OptionalInt.of(10))));
   }
 
   @Test
   public void shouldParseTermLists() {
-    Query q = Query.fromString("hello world AND foobar");
-    assertThat(q,
-        is(new AndQuery(asList(
-            new ListQuery(asList(new TermQuery("hello", false), new TermQuery("world", false))),
-            new TermQuery("foobar", false)))));
-  }
-
-  @Test
-  public void shouldTolerateDroppedCharacters() {
-    Query q = Query.fromString("hello's 南无阿弥陀佛 world AND foobar");
+    Query q = parseQuery("hello world AND foobar");
     assertThat(q, is(new AndQuery(asList(
-        new ListQuery(asList(new PhraseQuery(asList(new Term("hello", false), new Term("s", false)),
-            OptionalInt.empty()), new TermQuery("world", false))),
-        new TermQuery("foobar", false)))));
+        new ListQuery(asList(new TextQuery(asList(Term.fromString("hello")), OptionalInt.empty()),
+            new TextQuery(asList(Term.fromString("world")), OptionalInt.empty()))),
+        new TextQuery(asList(Term.fromString("foobar")), OptionalInt.empty())))));
   }
 }

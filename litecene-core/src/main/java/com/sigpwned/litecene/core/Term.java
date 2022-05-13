@@ -19,13 +19,16 @@
  */
 package com.sigpwned.litecene.core;
 
-import java.util.Locale;
 import java.util.Objects;
 import com.sigpwned.litecene.core.exception.InvalidWildcardException;
 import com.sigpwned.litecene.core.linting.Generated;
 
 public class Term {
   public static Term fromString(String text) {
+    if (!text.strip().equals(text)) {
+      throw new IllegalArgumentException("text has opening or closing whitespace");
+    }
+
     boolean wildcard;
     if (text.endsWith("*")) {
       text = text.substring(0, text.length() - 1);
@@ -37,11 +40,7 @@ public class Term {
     if (text.contains("*"))
       throw new InvalidWildcardException();
 
-    return new Term(text, wildcard);
-  }
-
-  public static Term of(String text, boolean wildcard) {
-    return new Term(text, wildcard);
+    return new Term(text.strip(), wildcard);
   }
 
   private final String text;
@@ -50,9 +49,7 @@ public class Term {
   public Term(String text, boolean wildcard) {
     if (text == null)
       throw new NullPointerException();
-    if (text.contains("*"))
-      throw new IllegalArgumentException("text contains wildcard");
-    this.text = text.toLowerCase(Locale.ENGLISH);
+    this.text = text;
     this.wildcard = wildcard;
   }
 
@@ -73,13 +70,11 @@ public class Term {
   }
 
   @Override
-  @Generated
   public int hashCode() {
     return Objects.hash(text, wildcard);
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -93,9 +88,6 @@ public class Term {
 
   @Override
   public String toString() {
-    String result = getText();
-    if (isWildcard())
-      result = result + "*";
-    return result;
+    return "Term [text=" + text + ", wildcard=" + wildcard + "]";
   }
 }

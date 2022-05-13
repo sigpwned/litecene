@@ -21,14 +21,21 @@ package com.sigpwned.litecene.core;
 
 import java.util.Objects;
 import com.sigpwned.litecene.core.linting.Generated;
-import com.sigpwned.litecene.core.query.token.PhraseToken;
-import com.sigpwned.litecene.core.query.token.TermToken;
+import com.sigpwned.litecene.core.query.token.TextToken;
 import com.sigpwned.litecene.core.util.Syntax;
 
 public abstract class Token {
   private static class ConstantToken extends Token {
+    private final String text;
+
     public ConstantToken(Type type, String text) {
-      super(type, text);
+      super(type);
+      this.text = text;
+    }
+
+    @Override
+    public String toString() {
+      return text;
     }
   }
 
@@ -66,27 +73,19 @@ public abstract class Token {
   public static final Token NOT = new ConstantToken(Type.NOT, Syntax.NOT);
 
   public static enum Type {
-    AND, OR, NOT, TERM, PHRASE, LPAREN, RPAREN, EOF;
+    AND, OR, NOT, TEXT, LPAREN, RPAREN, EOF;
   }
 
   private final Type type;
-  private final String text;
 
-  public Token(Type type, String text) {
+  public Token(Type type) {
     if (type == null)
       throw new NullPointerException();
-    if (text == null)
-      throw new NullPointerException();
     this.type = type;
-    this.text = text;
   }
 
-  public PhraseToken asPhrase() {
-    return (PhraseToken) this;
-  }
-
-  public TermToken asTerm() {
-    return (TermToken) this;
+  public TextToken asText() {
+    return (TextToken) this;
   }
 
   /**
@@ -97,22 +96,12 @@ public abstract class Token {
     return type;
   }
 
-  /**
-   * @return the text
-   */
-  @Generated
-  public String getText() {
-    return text;
-  }
-
   @Override
-  @Generated
   public int hashCode() {
-    return Objects.hash(text, type);
+    return Objects.hash(type);
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -121,12 +110,8 @@ public abstract class Token {
     if (getClass() != obj.getClass())
       return false;
     Token other = (Token) obj;
-    return Objects.equals(text, other.text) && type == other.type;
+    return type == other.type;
   }
 
-  @Override
-  @Generated
-  public String toString() {
-    return "Token [type=" + type + ", text=" + text + "]";
-  }
+  public abstract String toString();
 }

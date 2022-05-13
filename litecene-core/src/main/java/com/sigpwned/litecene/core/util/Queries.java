@@ -25,8 +25,7 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.PhraseQuery;
-import com.sigpwned.litecene.core.query.TermQuery;
+import com.sigpwned.litecene.core.query.TextQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 
 public final class Queries {
@@ -64,13 +63,8 @@ public final class Queries {
       }
 
       @Override
-      public Boolean phrase(PhraseQuery string) {
-        return string.getTerms().stream().allMatch(Terms::isVacuous);
-      }
-
-      @Override
-      public Boolean term(TermQuery term) {
-        return Terms.isVacuous(term.getText(), term.isWildcard());
+      public Boolean text(TextQuery text) {
+        return text.getTerms().stream().allMatch(Terms::isVacuous);
       }
 
       @Override

@@ -19,13 +19,16 @@
  */
 package com.sigpwned.litecene.core.stream.token;
 
+import static java.util.stream.Collectors.toList;
+import java.util.OptionalInt;
+import java.util.stream.Stream;
 import com.sigpwned.litecene.core.CodePointStream;
+import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.Token;
 import com.sigpwned.litecene.core.TokenStream;
 import com.sigpwned.litecene.core.exception.EofException;
 import com.sigpwned.litecene.core.exception.InvalidProximityException;
-import com.sigpwned.litecene.core.query.token.PhraseToken;
-import com.sigpwned.litecene.core.query.token.TermToken;
+import com.sigpwned.litecene.core.query.token.TextToken;
 import com.sigpwned.litecene.core.stream.codepoint.StringCodePointSource;
 import com.sigpwned.litecene.core.util.Syntax;
 
@@ -91,8 +94,7 @@ public class Tokenizer implements TokenStream {
         }
         if (!stream.hasNext())
           throw new EofException();
-        if (stream.next() != QUOTE)
-          throw new AssertionError("expected quote");
+        stream.next(); // QUOTE
 
         String text = buf.toString();
 
@@ -119,7 +121,9 @@ public class Tokenizer implements TokenStream {
           proximity = null;
         }
 
-        return new PhraseToken(text, proximity);
+        return new TextToken(
+            Syntax.WHITESPACE.splitAsStream(text.strip()).map(Term::fromString).collect(toList()),
+            proximity);
       }
       default: {
         buf.setLength(0);
@@ -138,7 +142,8 @@ public class Tokenizer implements TokenStream {
           case NOT:
             return Token.NOT;
           default:
-            return new TermToken(text);
+            return new TextToken(Stream.of(text.strip()).map(Term::fromString).collect(toList()),
+                OptionalInt.empty());
         }
       }
     }

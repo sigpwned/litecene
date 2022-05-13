@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Test;
 import com.sigpwned.litecene.core.CodePointStream;
+import com.sigpwned.litecene.core.util.CodePointStreams;
 
 public class StringCodePointSourceTest {
   @Test
@@ -13,11 +14,9 @@ public class StringCodePointSourceTest {
 
     CodePointStream cps = new StringCodePointSource(input);
 
-    StringBuilder buf = new StringBuilder();
-    while (cps.hasNext())
-      buf.appendCodePoint(cps.next());
+    String output = CodePointStreams.toString(cps);
 
-    assertThat(buf.toString(), is(input));
+    assertThat(output, is(input));
     assertThat(cps.peek(), is(CodePointStream.EOF));
   }
 

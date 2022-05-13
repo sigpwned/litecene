@@ -26,8 +26,7 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.PhraseQuery;
-import com.sigpwned.litecene.core.query.TermQuery;
+import com.sigpwned.litecene.core.query.TextQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 
 public class QueryProcessor<T> {
@@ -52,11 +51,7 @@ public class QueryProcessor<T> {
       return null;
     }
 
-    default T phrase(PhraseQuery phrase) {
-      return null;
-    }
-
-    default T term(TermQuery term) {
+    default T text(TextQuery text) {
       return null;
     }
 
@@ -89,12 +84,9 @@ public class QueryProcessor<T> {
     } else if (q instanceof ParenQuery) {
       ParenQuery paren = (ParenQuery) q;
       return getHandler().paren(paren);
-    } else if (q instanceof PhraseQuery) {
-      PhraseQuery phrase = (PhraseQuery) q;
-      return getHandler().phrase(phrase);
-    } else if (q instanceof TermQuery) {
-      TermQuery term = (TermQuery) q;
-      return getHandler().term(term);
+    } else if (q instanceof TextQuery) {
+      TextQuery text = (TextQuery) q;
+      return getHandler().text(text);
     } else if (q instanceof VacuousQuery) {
       VacuousQuery vacuous = (VacuousQuery) q;
       return getHandler().vacuous(vacuous);
