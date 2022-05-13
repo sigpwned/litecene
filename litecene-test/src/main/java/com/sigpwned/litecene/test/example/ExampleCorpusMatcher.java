@@ -39,8 +39,7 @@ import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
-import com.sigpwned.litecene.core.query.PhraseQuery;
-import com.sigpwned.litecene.core.query.TermQuery;
+import com.sigpwned.litecene.core.query.TextQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.util.QueryProcessor;
 import com.sigpwned.litecene.test.Corpus;
@@ -48,7 +47,8 @@ import com.sigpwned.litecene.test.CorpusMatcher;
 import com.sigpwned.litecene.test.Document;
 
 /**
- * This is a toy in-memory matcher. It's mostly used to test the test suite.
+ * This is a toy in-memory matcher. It assumes that we're only searching lowercase printable ASCII
+ * alphanumeric characters. It's mostly used to test the test suite.
  */
 public class ExampleCorpusMatcher implements CorpusMatcher {
   @Override
@@ -135,8 +135,8 @@ public class ExampleCorpusMatcher implements CorpusMatcher {
       }
 
       @Override
-      public Set<String> phrase(PhraseQuery string) {
-        if (string.getProximity().isPresent()) {
+      public Set<String> text(TextQuery text) {
+        if (text.getProximity().isPresent()) {
           Set<String> result = new HashSet<>();
           documents: for (Document doc : corpus.getDocuments()) {
             // These are the tokens in our document string
@@ -144,7 +144,7 @@ public class ExampleCorpusMatcher implements CorpusMatcher {
                 TOKEN.matcher(doc.getText()).results().map(MatchResult::group).collect(toList());
 
             // For each term in our query string, these are the indexes of the tokens that match
-            List<List<Integer>> matches = string.getTerms().stream().map(t -> {
+            List<List<Integer>> matches = text.getTerms().stream().map(t -> {
               Pattern p = compile(t);
               return IntStream.range(0, tokens.size())
                   .filter(i -> p.matcher(tokens.get(i)).matches()).boxed().collect(toList());
@@ -159,7 +159,7 @@ public class ExampleCorpusMatcher implements CorpusMatcher {
                   .orElseThrow(AssertionError::new);
               int max = permutation.stream().mapToInt(Integer::intValue).max()
                   .orElseThrow(AssertionError::new);
-              if (max - min + 1 <= string.getProximity().getAsInt()) {
+              if (max - min + 1 <= text.getProximity().getAsInt()) {
                 result.add(doc.getId());
                 continue documents;
               }
@@ -167,18 +167,11 @@ public class ExampleCorpusMatcher implements CorpusMatcher {
           }
           return result;
         } else {
-          Pattern p = Pattern.compile(string.getTerms().stream().map(t -> compile(t))
+          Pattern p = Pattern.compile(text.getTerms().stream().map(t -> compile(t))
               .map(Pattern::pattern).collect(joining(" ")), Pattern.CASE_INSENSITIVE);
           return corpus.getDocuments().stream().filter(d -> p.matcher(d.getText()).find())
               .map(Document::getId).collect(toSet());
         }
-      }
-
-      @Override
-      public Set<String> term(TermQuery term) {
-        Pattern p = compile(term.getText(), term.isWildcard());
-        return corpus.getDocuments().stream().filter(d -> p.matcher(d.getText()).find())
-            .map(Document::getId).collect(toSet());
       }
 
       private Pattern compile(Term term) {

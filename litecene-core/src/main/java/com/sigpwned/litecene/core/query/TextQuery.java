@@ -36,8 +36,8 @@ public class TextQuery extends Query {
   /**
    * @return the proximity
    */
-  public Integer getProximity() {
-    return proximity;
+  public OptionalInt getProximity() {
+    return proximity != null ? OptionalInt.of(proximity.intValue()) : OptionalInt.empty();
   }
 
   @Override

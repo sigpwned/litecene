@@ -74,64 +74,63 @@ public abstract class CorpusMatcherTest {
 
   @Test
   public void shouldAllMatchIpsum() throws IOException {
-    Set<String> matchIds = matcher.match(corpus, Query.fromString("ipsum"));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("ipsum"));
     assertThat(matchIds, is(Set.of(PIRATE_ID, CUPCAKE_ID, CHEESE_ID, HIPSTER_ID, OFFICE_ID)));
   }
 
   @Test
   public void shouldMatchCheeseOnly1() throws IOException {
-    Set<String> matchIds = matcher.match(corpus, Query.fromString("fontina"));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("fontina"));
     assertThat(matchIds, is(Set.of(CHEESE_ID)));
   }
 
   @Test
   public void shouldMatchCheeseOnly2() throws IOException {
-    Set<String> matchIds =
-        matcher.match(corpus, Query.fromString("fontina AND (\"melted cheese\")"));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("fontina AND (\"melted cheese\")"));
     assertThat(matchIds, is(Set.of(CHEESE_ID)));
   }
 
   @Test
   public void shouldMatchCheeseOnly3() throws IOException {
-    Set<String> matchIds =
-        matcher.match(corpus, Query.fromString("font*"));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("font*"));
     assertThat(matchIds, is(Set.of(CHEESE_ID)));
   }
 
   @Test
   public void shouldMatchCheeseOnly4() throws IOException {
-    Set<String> matchIds =
-        matcher.match(corpus, Query.fromString("\"font*\" AND \"melted cheese\""));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("\"font*\" AND \"melted cheese\""));
     assertThat(matchIds, is(Set.of(CHEESE_ID)));
   }
 
   @Test
   public void shouldMatchPiratesOnly1() throws IOException {
-    Set<String> matchIds = matcher.match(corpus, Query.fromString("\"spirits mizzenmast\"~4"));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("\"spirits mizzenmast\"~4"));
     assertThat(matchIds, is(Set.of(PIRATE_ID)));
   }
 
   @Test
   public void shouldNotMatchPiratesOnly1() throws IOException {
-    Set<String> matchIds = matcher.match(corpus, Query.fromString("\"spirits mizzenmast\"~2"));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("\"spirits mizzenmast\"~2"));
     assertThat(matchIds, is(Set.of()));
   }
 
   @Test
   public void shouldMatchCheeseAndPirate() throws IOException {
-    Set<String> matchIds = matcher.match(corpus, Query.fromString("fontina OR mizzenmast"));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("fontina OR mizzenmast"));
     assertThat(matchIds, is(Set.of(CHEESE_ID, PIRATE_ID)));
   }
 
   @Test
   public void shouldMatchNothing1() throws IOException {
-    Set<String> matchIds = matcher.match(corpus, Query.fromString("fontina AND mizzenmast"));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("fontina AND mizzenmast"));
     assertThat(matchIds, is(Set.of()));
   }
 
   @Test
   public void shouldMatchNothing2() throws IOException {
-    Set<String> matchIds = matcher.match(corpus, Query.fromString("fontina mizzenmast"));
+    Set<String> matchIds = matcher.match(corpus, parseQuery("fontina mizzenmast"));
     assertThat(matchIds, is(Set.of()));
   }
+
+  protected abstract Query parseQuery(String q);
 }
