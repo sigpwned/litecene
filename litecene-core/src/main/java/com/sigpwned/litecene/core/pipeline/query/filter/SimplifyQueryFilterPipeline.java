@@ -33,7 +33,7 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
     return new QueryProcessor<Query>(new QueryProcessor.Processor<Query>() {
       @Override
       public Query and(AndQuery and) {
-        List<Query> cs = and.getChildren().stream().map(c -> simplify(q))
+        List<Query> cs = and.getChildren().stream().map(c -> simplify(c))
             .filter(c -> !Queries.isVacuous(c)).collect(toList());
         if (cs.size() == and.getChildren().size())
           return and;

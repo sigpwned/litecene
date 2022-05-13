@@ -40,5 +40,17 @@ public class LetterNumberTokenFilterTest {
         new TextToken(asList(Term.fromString("füñkÿ123 z")), OptionalInt.empty()))));
   }
 
-  // TODO Proximity change test
+  @Test
+  public void shouldAdjustProximityWhenTermTokenCountChanges() {
+    TokenStream source = new ListTokenSource(asList(new TextToken(
+        asList(Term.fromString("füñkÿ123#z"), Term.fromString("hello")), OptionalInt.of(10))));
+
+    TokenStream ts = new LetterNumberTokenFilter(source);
+
+    List<Token> tokens = TokenStreams.toList(ts);
+
+    assertThat(tokens,
+        is(asList(new TextToken(asList(Term.fromString("füñkÿ123 z"), Term.fromString("hello")),
+            OptionalInt.of(11)))));
+  }
 }
