@@ -106,10 +106,8 @@ public class BigQuerySearchCompiler {
       return "TRUE";
     } else {
       // There are tokens required by the query. Search for them.
-      String result = String.format("SEARCH(%s, '%s')", getField(),
+      return String.format("SEARCH(%s, '%s')", getField(),
           requiredTokens.stream().sorted().collect(joining(" ")));
-      System.out.println(result);
-      return result;
     }
   }
 
@@ -118,7 +116,7 @@ public class BigQuerySearchCompiler {
    * given Query using regular expressions
    */
   private String regexPredicate(Query q) {
-    String result = new QueryProcessor<String>(new QueryProcessor.Processor<String>() {
+    return new QueryProcessor<String>(new QueryProcessor.Processor<String>() {
       @Override
       public String and(AndQuery and) {
         return and.getChildren().stream().map(c -> "(" + regexPredicate(c) + ")")
@@ -182,8 +180,6 @@ public class BigQuerySearchCompiler {
         return "TRUE";
       }
     }).process(q);
-    System.out.println(result);
-    return result;
   }
 
   private String pattern(Term term) {
