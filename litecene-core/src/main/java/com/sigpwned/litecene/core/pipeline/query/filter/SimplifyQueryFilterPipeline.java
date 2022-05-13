@@ -19,8 +19,8 @@ import com.sigpwned.litecene.core.util.Terms;
 /**
  * Eliminates vacuous query nodes
  */
-public class SimplifyFilterQueryPipeline extends FilterQueryPipeline {
-  public SimplifyFilterQueryPipeline(QueryPipeline upstream) {
+public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
+  public SimplifyQueryFilterPipeline(QueryPipeline upstream) {
     super(upstream);
   }
 

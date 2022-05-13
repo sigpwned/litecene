@@ -17,7 +17,7 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core.parse;
+package com.sigpwned.litecene.core.pipeline.query;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
@@ -26,7 +26,6 @@ import java.util.OptionalInt;
 import org.junit.Test;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.Term;
-import com.sigpwned.litecene.core.pipeline.query.QueryParser;
 import com.sigpwned.litecene.core.query.AndQuery;
 import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
