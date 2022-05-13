@@ -45,6 +45,8 @@ public class BigQueryCorpusMatcher implements CorpusMatcher {
             .collect(joining(" UNION ALL ")),
         BigQueryQueries.recommendedAnalysisExpr("text"),
         new BigQuerySearchCompiler("a.analyzed", true).compile(query));
+    
+    System.out.println(sql);
 
     BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
 

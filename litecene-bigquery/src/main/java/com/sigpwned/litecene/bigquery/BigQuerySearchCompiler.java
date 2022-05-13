@@ -36,6 +36,7 @@ import com.sigpwned.litecene.core.query.ParenQuery;
 import com.sigpwned.litecene.core.query.TextQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.util.QueryProcessor;
+import com.sigpwned.litecene.core.util.Syntax;
 
 public class BigQuerySearchCompiler {
   /**
@@ -63,21 +64,20 @@ public class BigQuerySearchCompiler {
     this.indexed = indexed;
   }
 
+  private static final String TOKEN_FIELD_NAME = "t";
+
+  private static final String INDEX_FIELD_NAME = "i";
+
   @SuppressWarnings("unused")
   private class ProximityTerm {
     public final int index;
-    public final String indexName;
-    public final String tokenName;
-    public final String table;
-    public final String predicate;
+    public final String tableName;
+    public final String tableExpr;
 
-    public ProximityTerm(int index, String indexName, String tokenName, String table,
-        String predicate) {
+    public ProximityTerm(int index, String tableName, String tableExpr) {
       this.index = index;
-      this.indexName = indexName;
-      this.tokenName = tokenName;
-      this.table = table;
-      this.predicate = predicate;
+      this.tableName = tableName;
+      this.tableExpr = tableExpr;
     }
   }
 
@@ -106,8 +106,10 @@ public class BigQuerySearchCompiler {
       return "TRUE";
     } else {
       // There are tokens required by the query. Search for them.
-      return String.format("SEARCH(%s, '%s')", getField(),
+      String result = String.format("SEARCH(%s, '%s')", getField(),
           requiredTokens.stream().sorted().collect(joining(" ")));
+      System.out.println(result);
+      return result;
     }
   }
 
@@ -116,7 +118,7 @@ public class BigQuerySearchCompiler {
    * given Query using regular expressions
    */
   private String regexPredicate(Query q) {
-    return new QueryProcessor<String>(new QueryProcessor.Processor<String>() {
+    String result = new QueryProcessor<String>(new QueryProcessor.Processor<String>() {
       @Override
       public String and(AndQuery and) {
         return and.getChildren().stream().map(c -> "(" + regexPredicate(c) + ")")
@@ -160,12 +162,11 @@ public class BigQuerySearchCompiler {
               .mapToObj(i -> proximityTermFromTermIndex(i, text.getTerms().get(i)))
               .collect(toList());
 
-          return String.format(
-              "EXISTS (SELECT 1 FROM %s WHERE %s AND GREATEST(%s)-LEAST(%s)+1 <= %d)",
-              terms.stream().map(t -> t.table).collect(joining(" CROSS JOIN ")),
-              terms.stream().map(t -> t.predicate).collect(joining(" AND ")),
-              terms.stream().map(t -> t.indexName).collect(joining(", ")),
-              terms.stream().map(t -> t.indexName).collect(joining(", ")), proximity);
+          return String.format("EXISTS (SELECT 1 FROM %s WHERE GREATEST(%s)-LEAST(%s)+1 <= %d)",
+              terms.stream().map(t -> t.tableExpr).collect(joining(" CROSS JOIN ")),
+              terms.stream().map(t -> t.tableName + "." + INDEX_FIELD_NAME).collect(joining(", ")),
+              terms.stream().map(t -> t.tableName + "." + INDEX_FIELD_NAME).collect(joining(", ")),
+              proximity);
         } else {
           // The tokens must be in order. We simply search for all the regular expressions in order
           return String.format("REGEXP_CONTAINS(%s, r\"%s\")", field,
@@ -181,6 +182,8 @@ public class BigQuerySearchCompiler {
         return "TRUE";
       }
     }).process(q);
+    System.out.println(result);
+    return result;
   }
 
   private String pattern(Term term) {
@@ -196,18 +199,30 @@ public class BigQuerySearchCompiler {
   }
 
   private ProximityTerm proximityTermFromTermIndex(int i, Term ti) {
-    String tokenName = "_t" + i;
-    String indexName = "_i" + i;
+    // These are just useful aliases
+    String tableName = "_q" + i;
 
-    // This produces a table of every token in the document body
-    String table =
-        String.format("UNNEST(REGEXP_EXTRACT_ALL(%s, r\"[a-z0-9]+\")) AS %s WITH OFFSET %s",
-            getField(), tokenName, indexName);
+    int tokenCount = Math.toIntExact(Syntax.WHITESPACE.splitAsStream(ti.getText()).count());
 
-    // This filters the words for the current term
-    String predicate = String.format("REGEXP_CONTAINS(_t%d, r\"%s\")", i, pattern(ti));
+    // This produces a table of all the tokens in the given field text with its index
+    String tableExpr;
+    if (tokenCount == 1) {
+      // If there's only one token, then we can just compare the term text to the individual words
+      // extracted by the regex to compare to the term
+      tableExpr = String.format(
+          "(SELECT %s, %s FROM UNNEST(REGEXP_EXTRACT_ALL(%s, r\"[a-z0-9]+\")) AS %s WITH OFFSET %s WHERE REGEXP_CONTAINS(%s, r\"%s\")) AS %s",
+          INDEX_FIELD_NAME, TOKEN_FIELD_NAME, getField(), TOKEN_FIELD_NAME, INDEX_FIELD_NAME,
+          TOKEN_FIELD_NAME, pattern(ti), tableName);
+    } else {
+      // If there's more than one token, then we have to use the ML.NGRAMS function to pull in N
+      // adjacent tokens to compare to the term
+      tableExpr = String.format(
+          "(SELECT %s, %s FROM UNNEST(ML.NGRAMS(REGEXP_EXTRACT_ALL(%s, r\"[a-z0-9]+\"), [ %d, %d ])) AS %s WITH OFFSET %s WHERE REGEXP_CONTAINS(%s, r\"%s\")) AS %s",
+          INDEX_FIELD_NAME, TOKEN_FIELD_NAME, getField(), tokenCount, tokenCount, TOKEN_FIELD_NAME,
+          INDEX_FIELD_NAME, TOKEN_FIELD_NAME, pattern(ti), tableName);
+    }
 
-    return new ProximityTerm(i, indexName, tokenName, table, predicate);
+    return new ProximityTerm(i, tableName, tableExpr);
   }
 
   /**
