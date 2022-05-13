@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene-bigquery
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,22 +17,30 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.bigquery;
+package com.sigpwned.litecene.core.stream.token;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import java.util.List;
+import java.util.OptionalInt;
 import org.junit.Test;
-import com.sigpwned.litecene.bigquery.util.BigQueryQueries;
+import com.sigpwned.litecene.core.Term;
+import com.sigpwned.litecene.core.Token;
+import com.sigpwned.litecene.core.TokenStream;
+import com.sigpwned.litecene.core.query.token.TextToken;
+import com.sigpwned.litecene.core.util.TokenStreams;
 
-/**
- * Some day, we should do actual unit testing with zetasql. However, zetasql does not support Java
- * on M1 Macs right now. So let's settle for just some smoke tests.
- */
-public class BigQuerySmokeTest {
+public class ListTokenSourceTest {
   @Test
-  public void shouldCompileComplexQuery() {
-    String sql = new BigQuerySearchCompiler("t.text", false).compile(BigQueryQueries
-        .recommendedParseQuery("hello OR (world AND \"foo bar*\" AND \"alpha bravo\"~4)"));
-    assertThat(sql, containsString("t.text"));
+  public void shouldReturnTokenList() {
+    List<Token> inputTokens = asList(Token.AND, Token.LPAREN, Token.OR, Token.NOT, Token.RPAREN,
+        new TextToken(asList(Term.fromString("füñkÿ123#z")), OptionalInt.empty()));
+
+    TokenStream source = new ListTokenSource(inputTokens);
+
+    List<Token> outputTokens = TokenStreams.toList(source);
+
+    assertThat(outputTokens, is(inputTokens));
   }
 }

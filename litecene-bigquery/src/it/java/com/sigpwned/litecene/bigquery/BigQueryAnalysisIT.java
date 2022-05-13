@@ -20,31 +20,33 @@
 package com.sigpwned.litecene.bigquery;
 
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.util.Set;
+import java.util.List;
+import org.junit.Test;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Streams;
 import com.sigpwned.litecene.bigquery.util.BigQueryQueries;
-import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.test.Corpus;
-import com.sigpwned.litecene.test.CorpusMatcher;
+import com.sigpwned.litecene.test.Document;
 
-public class BigQueryCorpusMatcher implements CorpusMatcher {
-  @Override
-  public Set<String> match(Corpus corpus, Query query) throws IOException {
-    String sql = String.format(
-        "WITH corpus AS (%s), analyzed AS (SELECT id, text, %s AS analyzed FROM corpus) SELECT DISTINCT id FROM analyzed a WHERE (%s)",
+public class BigQueryAnalysisIT {
+  @Test
+  public void shouldAnalyzeTextValueAppropriately() throws IOException {
+    Corpus corpus =
+        Corpus.of(List.of(Document.of("mfl", "Thë råįñ ïń Špâîñ fãllś màíńlÿ oń thë plãíñ.")));
+    String sql = String.format("WITH data AS (%s) SELECT id, text, %s AS analyzed FROM data",
         corpus.getDocuments().stream()
             .map(d -> String.format("SELECT %s AS id, %s AS text", emitString(d.getId()),
                 emitString(d.getText())))
             .collect(joining(" UNION ALL ")),
-        BigQueryQueries.recommendedAnalysisExpr("text"),
-        new BigQuerySearchCompiler("a.analyzed", true).compile(query));
+        BigQueryQueries.recommendedAnalysisExpr("text"));
 
     BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
 
@@ -58,8 +60,13 @@ public class BigQueryCorpusMatcher implements CorpusMatcher {
       throw new InterruptedIOException();
     }
 
-    return Streams.stream(results.iterateAll()).map(row -> row.get("id").getStringValue())
-        .collect(toSet());
+    Corpus analyzedCorpus = Corpus.of(Streams.stream(results.iterateAll()).map(
+        row -> Document.of(row.get("id").getStringValue(), row.get("analyzed").getStringValue()))
+        .collect(toList()));
+
+    assertThat(analyzedCorpus,
+        is(Corpus.of(List.of(Document.of("mfl", "the rain in spain falls mainly on the plain")))));
+
   }
 
   private String emitString(String s) {

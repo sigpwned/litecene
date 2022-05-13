@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,12 +17,20 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core;
+package com.sigpwned.litecene.core.util;
 
-public abstract class Query {
+import com.sigpwned.litecene.core.CodePointStream;
+
+public final class CodePointStreams {
+  private CodePointStreams() {}
+
   /**
-   * Returns a syntactically-correct String representation of this query.
+   * Drains a {@link CodePointStream} to a {@link String}.
    */
-  @Override
-  public abstract String toString();
+  public static String toString(CodePointStream cps) {
+    StringBuilder result = new StringBuilder();
+    while (cps.hasNext())
+      result.appendCodePoint(cps.next());
+    return result.toString();
+  }
 }

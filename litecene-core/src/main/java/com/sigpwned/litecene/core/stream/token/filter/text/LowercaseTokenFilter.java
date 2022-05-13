@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,12 +17,22 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core;
+package com.sigpwned.litecene.core.stream.token.filter.text;
 
-public abstract class Query {
-  /**
-   * Returns a syntactically-correct String representation of this query.
-   */
+import java.util.Locale;
+import com.sigpwned.litecene.core.TokenStream;
+import com.sigpwned.litecene.core.stream.token.filter.TextProcessingTokenFilter;
+
+/**
+ * Converts text tokens to their lowercase representations
+ */
+public class LowercaseTokenFilter extends TextProcessingTokenFilter {
+  public LowercaseTokenFilter(TokenStream upstream) {
+    super(upstream);
+  }
+
   @Override
-  public abstract String toString();
+  protected String process(String text) {
+    return text.toLowerCase(Locale.US);
+  }
 }

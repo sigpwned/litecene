@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -19,10 +19,12 @@
  */
 package com.sigpwned.litecene.core;
 
-public abstract class Query {
+/**
+ * Produces a single {@link Query} non-repeatably. Generally built on top of a {@link TokenStream}.
+ */
+public interface QueryPipeline {
   /**
-   * Returns a syntactically-correct String representation of this query.
+   * Produces one {@link Query} non-repeatably.
    */
-  @Override
-  public abstract String toString();
+  public Query query();
 }

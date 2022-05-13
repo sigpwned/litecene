@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,41 +17,48 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core.util;
+package com.sigpwned.litecene.core.stream.token;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.unmodifiableList;
 import java.util.List;
-import com.sigpwned.litecene.core.Term;
+import java.util.ListIterator;
+import com.sigpwned.litecene.core.Token;
+import com.sigpwned.litecene.core.TokenStream;
 
-public final class Terms {
-  private Terms() {}
+/**
+ * Returns a fixed list of {@link Token} objects. Useful for testing.
+ */
+public class ListTokenSource implements TokenStream {
+  private final ListIterator<Token> iterator;
 
-  public static boolean isVacuous(Term t) {
-    return isVacuous(t.getText(), t.isWildcard());
+  public ListTokenSource(List<Token> tokens) {
+    this.iterator = unmodifiableList(tokens).listIterator();
   }
 
-  public static boolean isVacuous(String text, boolean wildcard) {
-    return text.isEmpty() && !wildcard;
+  @Override
+  public Token peek() {
+    if (getIterator().hasNext()) {
+      Token result = getIterator().next();
+      getIterator().previous();
+      return result;
+    } else {
+      return Token.EOF;
+    }
   }
 
-  public static List<String> tokenize(String s) {
-    return Syntax.WHITESPACE.splitAsStream(s.strip()).collect(toList());
+  @Override
+  public Token next() {
+    if (getIterator().hasNext()) {
+      return getIterator().next();
+    } else {
+      return Token.EOF;
+    }
   }
 
   /**
-   * Returns the number of "tokens" inside this term.
-   * 
-   * Example: text="", wildcard=true -> 1
-   * 
-   * Example: text="what s up pussycat", wildcard=false -> 4
-   * 
-   * Example: text="what s up pussycat", wildcard=true -> 4
+   * @return the iterator
    */
-  public static int size(Term t) {
-    if (t.getText().isEmpty() && t.isWildcard()) {
-      return 1;
-    } else {
-      return Math.toIntExact(Syntax.WHITESPACE.splitAsStream(t.getText()).count());
-    }
+  private ListIterator<Token> getIterator() {
+    return iterator;
   }
 }

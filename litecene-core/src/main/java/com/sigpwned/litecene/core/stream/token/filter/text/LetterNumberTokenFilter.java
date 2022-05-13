@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,12 +17,25 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core;
+package com.sigpwned.litecene.core.stream.token.filter.text;
 
-public abstract class Query {
-  /**
-   * Returns a syntactically-correct String representation of this query.
-   */
+import java.util.regex.Pattern;
+import com.sigpwned.litecene.core.TokenStream;
+import com.sigpwned.litecene.core.stream.token.filter.TextProcessingTokenFilter;
+
+/**
+ * Re-tokenizes text tokens to use (unicode) letters and numbers only. This can be combined with the
+ * {@link NormalizeTokenFilter} to create an "ASCII alnum" filter.
+ */
+public class LetterNumberTokenFilter extends TextProcessingTokenFilter {
+  public LetterNumberTokenFilter(TokenStream upstream) {
+    super(upstream);
+  }
+
+  private static final Pattern NON_ALNUM = Pattern.compile("[^\\p{L}\\p{N}]+");
+
   @Override
-  public abstract String toString();
+  protected String process(String text) {
+    return NON_ALNUM.matcher(text).replaceAll(" ").strip();
+  }
 }

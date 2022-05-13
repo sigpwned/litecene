@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,12 +17,24 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core;
+package com.sigpwned.litecene.core.util;
 
-public abstract class Query {
+import java.util.ArrayList;
+import java.util.List;
+import com.sigpwned.litecene.core.Token;
+import com.sigpwned.litecene.core.TokenStream;
+
+public final class TokenStreams {
+  private TokenStreams() {}
+
   /**
-   * Returns a syntactically-correct String representation of this query.
+   * Drains a {@link TokenStream} to a {@link List}.
    */
-  @Override
-  public abstract String toString();
+  public static List<Token> toList(TokenStream ts) {
+    List<Token> result = new ArrayList<>();
+    while (ts.hasNext()) {
+      result.add(ts.next());
+    }
+    return result;
+  }
 }

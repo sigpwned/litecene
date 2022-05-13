@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,12 +17,30 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core;
+package com.sigpwned.litecene.core.stream.token.filter.text;
 
-public abstract class Query {
+import java.text.Normalizer;
+import java.util.regex.Pattern;
+import com.sigpwned.litecene.core.TokenStream;
+import com.sigpwned.litecene.core.stream.token.filter.TextProcessingTokenFilter;
+
+/**
+ * Replaces text tokens with "simplified" latin representations. For example, replace "fůňķŷ" with
+ * "funky".
+ */
+public class NormalizeTokenFilter extends TextProcessingTokenFilter {
+  public NormalizeTokenFilter(TokenStream upstream) {
+    super(upstream);
+  }
+
   /**
-   * Returns a syntactically-correct String representation of this query.
+   * Recognizes a single character in the Unicode mark category
    */
+  private static final Pattern MARK = Pattern.compile("\\p{M}");
+
+
   @Override
-  public abstract String toString();
+  protected String process(String text) {
+    return MARK.matcher(Normalizer.normalize(text, Normalizer.Form.NFKD)).replaceAll("");
+  }
 }

@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,12 +17,37 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core;
+package com.sigpwned.litecene.core.pipeline.predicate;
 
-public abstract class Query {
-  /**
-   * Returns a syntactically-correct String representation of this query.
-   */
+import com.sigpwned.litecene.core.PredicatePipeline;
+import com.sigpwned.litecene.core.QueryPipeline;
+import com.sigpwned.litecene.core.QueryTranspiler;
+
+public class PredicateTranspiler implements PredicatePipeline {
+  private final QueryPipeline query;
+  private final QueryTranspiler transpiler;
+
+  public PredicateTranspiler(QueryPipeline query, QueryTranspiler transpiler) {
+    this.query = query;
+    this.transpiler = transpiler;
+  }
+
   @Override
-  public abstract String toString();
+  public String predicate() {
+    return getTranspiler().transpile(getQuery().query());
+  }
+
+  /**
+   * @return the query
+   */
+  private QueryPipeline getQuery() {
+    return query;
+  }
+
+  /**
+   * @return the transpiler
+   */
+  private QueryTranspiler getTranspiler() {
+    return transpiler;
+  }
 }

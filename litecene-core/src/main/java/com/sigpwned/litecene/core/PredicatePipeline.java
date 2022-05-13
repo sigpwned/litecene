@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * litecene
+ * litecene-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -19,10 +19,9 @@
  */
 package com.sigpwned.litecene.core;
 
-public abstract class Query {
-  /**
-   * Returns a syntactically-correct String representation of this query.
-   */
-  @Override
-  public abstract String toString();
+/**
+ * Transpiles a litecene query to another format, e.g. SQL.
+ */
+public interface PredicatePipeline {
+  public String predicate();
 }

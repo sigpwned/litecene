@@ -17,12 +17,11 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.litecene.core;
+package com.sigpwned.litecene.core.exception;
 
-public abstract class Query {
-  /**
-   * Returns a syntactically-correct String representation of this query.
-   */
-  @Override
-  public abstract String toString();
+import com.sigpwned.litecene.core.LiteceneException;
+
+public class UnexpectedCharacterException extends LiteceneException {
+  private static final long serialVersionUID = 3869894389490612709L;
+
 }
