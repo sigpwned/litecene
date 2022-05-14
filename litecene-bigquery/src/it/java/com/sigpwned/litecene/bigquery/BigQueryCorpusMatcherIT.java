@@ -19,7 +19,7 @@
  */
 package com.sigpwned.litecene.bigquery;
 
-import com.sigpwned.litecene.bigquery.util.BigQueryQueries;
+import com.sigpwned.litecene.bigquery.util.BigQuerySearching;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.test.CorpusMatcherTest;
 
@@ -30,6 +30,6 @@ public class BigQueryCorpusMatcherIT extends CorpusMatcherTest {
 
   @Override
   protected Query parseQuery(String q) {
-    return BigQueryQueries.recommendedParseQuery(q);
+    return BigQuerySearching.recommendedParseQuery(q);
   }
 }

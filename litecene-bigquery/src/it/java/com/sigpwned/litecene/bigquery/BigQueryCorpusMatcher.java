@@ -29,7 +29,7 @@ import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Streams;
-import com.sigpwned.litecene.bigquery.util.BigQueryQueries;
+import com.sigpwned.litecene.bigquery.util.BigQuerySearching;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.test.Corpus;
 import com.sigpwned.litecene.test.CorpusMatcher;
@@ -43,7 +43,7 @@ public class BigQueryCorpusMatcher implements CorpusMatcher {
             .map(d -> String.format("SELECT %s AS id, %s AS text", emitString(d.getId()),
                 emitString(d.getText())))
             .collect(joining(" UNION ALL ")),
-        BigQueryQueries.recommendedAnalysisExpr("text"),
+        BigQuerySearching.recommendedAnalysisExpr("text"),
         new BigQuerySearchCompiler("a.analyzed", true).compile(query));
 
     BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();

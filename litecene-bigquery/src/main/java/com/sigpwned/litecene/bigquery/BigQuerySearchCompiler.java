@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.IntStream;
-import com.sigpwned.litecene.bigquery.util.BigQueryQueries;
+import com.sigpwned.litecene.bigquery.util.MoreQueries;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.query.AndQuery;
@@ -86,7 +86,7 @@ public class BigQuerySearchCompiler {
    * field.
    */
   public String compile(Query q) {
-    if (BigQueryQueries.isFullySearchable(q)) {
+    if (MoreQueries.isFullySearchable(q)) {
       return String.format("(%s)", searchPredicate(q));
     } else if (isIndexed()) {
       return String.format("((%s) AND (%s))", searchPredicate(q), regexPredicate(q));
@@ -100,7 +100,7 @@ public class BigQuerySearchCompiler {
    * that must all appear in the text being searched. This implements that predicate when possible.
    */
   private String searchPredicate(Query q) {
-    Set<String> requiredTokens = BigQueryQueries.requiredTokens(q);
+    Set<String> requiredTokens = MoreQueries.requiredTokens(q);
     if (requiredTokens.isEmpty()) {
       // There are no tokens required by the query. Trivially match.
       return "TRUE";

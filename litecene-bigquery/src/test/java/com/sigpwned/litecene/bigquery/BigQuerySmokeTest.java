@@ -22,7 +22,7 @@ package com.sigpwned.litecene.bigquery;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Test;
-import com.sigpwned.litecene.bigquery.util.BigQueryQueries;
+import com.sigpwned.litecene.bigquery.util.BigQuerySearching;
 
 /**
  * Some day, we should do actual unit testing with zetasql. However, zetasql does not support Java
@@ -31,7 +31,7 @@ import com.sigpwned.litecene.bigquery.util.BigQueryQueries;
 public class BigQuerySmokeTest {
   @Test
   public void shouldCompileComplexQuery() {
-    String sql = new BigQuerySearchCompiler("t.text", false).compile(BigQueryQueries
+    String sql = new BigQuerySearchCompiler("t.text", false).compile(BigQuerySearching
         .recommendedParseQuery("hello OR (world AND \"foo bar*\" AND \"alpha bravo\"~4)"));
     assertThat(sql, containsString("t.text"));
   }

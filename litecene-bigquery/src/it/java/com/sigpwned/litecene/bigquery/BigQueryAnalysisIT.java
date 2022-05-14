@@ -32,7 +32,7 @@ import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Streams;
-import com.sigpwned.litecene.bigquery.util.BigQueryQueries;
+import com.sigpwned.litecene.bigquery.util.BigQuerySearching;
 import com.sigpwned.litecene.test.Corpus;
 import com.sigpwned.litecene.test.Document;
 
@@ -46,7 +46,7 @@ public class BigQueryAnalysisIT {
             .map(d -> String.format("SELECT %s AS id, %s AS text", emitString(d.getId()),
                 emitString(d.getText())))
             .collect(joining(" UNION ALL ")),
-        BigQueryQueries.recommendedAnalysisExpr("text"));
+        BigQuerySearching.recommendedAnalysisExpr("text"));
 
     BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
 
