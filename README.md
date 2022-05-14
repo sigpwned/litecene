@@ -23,6 +23,10 @@ Full-text search is a key feature of modern applications. However, different dat
 
 This section describes the common Litecene query syntax. Note that different backends implement query matching differently. This section merely describes what constitutes a valid query and the logical definition of a match; each backend implementation documents exactly how valid queries are matched in that backend.
 
+As an example, this might be a good Litecene query to identify social media posts mentioning common ways people user their smartphones:
+
+    (smartphone OR "smart phone" OR iphone OR "apple phone" OR android OR "google phone" OR "windows phone" OR "phone app"~8) AND (call OR dial OR app OR surf OR browse OR camera OR picture OR pic OR selfie)
+
 Litecene supports seven search clause types: term, phrase, list, groups, and, or, and not.
 
 ### Term Clause
