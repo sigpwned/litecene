@@ -19,6 +19,8 @@ The BigQuery field to be searched must be "analyzed" using the following express
 
     LOWER(TRIM(REGEXP_REPLACE(REGEXP_REPLACE(NORMALIZE(field, NFKD), r"\p{M}", ''), r"[^a-zA-Z0-9]+", ' ')))
 
+You can find this expression in [BigQuerySearching#recommendedAnalysisExpr](https://github.com/sigpwned/litecene/blob/main/litecene-bigquery/src/main/java/com/sigpwned/litecene/bigquery/util/BigQuerySearching.java#L60).
+
 ### Using Materialized Views
 
 One convenient way to do this is using materialized views, now that BigQuery supports non-aggregate views. For a table `example.table` with the following schema:
@@ -52,7 +54,7 @@ Given the above example, a query can be created like this:
 
     System.out.println(
       String.format("SELECT id, text FROM `example.searchable` t WHERE (%s) ORDER BY id ASC LIMIT 10 OFFSET 0",
-        new BigQuerySearchCompiler("t.analyzed").compile(Query.fromString("hello OR world"))));
+        new BigQuerySearchCompiler("t.analyzed").compile(BigQuerySearching.recommendedParseQuery("hello OR world"))));
 
     SELECT id, text FROM `example.searchable` t WHERE (((REGEXP_CONTAINS(t.analyzed, r"\b\Qhello\E\b")) OR (REGEXP_CONTAINS(t.analyzed, r"\b\Qworld\E\b")))) ORDER BY id ASC LIMIT 10 OFFSET 0
 
@@ -64,7 +66,7 @@ BigQuery is (finally) adding [features to support full-text search natively](htt
 
     System.out.println(
       String.format("SELECT id, text FROM `example.searchable` t WHERE (%s) ORDER BY id ASC LIMIT 10 OFFSET 0",
-        new BigQuerySearchCompiler("t.analyzed", true).compile(Query.fromString("\"hello world\""))));
+        new BigQuerySearchCompiler("t.analyzed", true).compile(BigQuerySearching.recommendedParseQuery("\"hello world\""))));
 
    SELECT id, text FROM `example.searchable` t WHERE ((SEARCH(c.text, 'hello world')) AND (REGEXP_CONTAINS(c.text, r"\b\Qhello\E\b \b\Qworld\E\b"))) ORDER BY id ASC LIMIT 10 OFFSET 0
 
@@ -74,7 +76,7 @@ The `SEARCH` function is used if litecene detects that some non-wildcard tokens 
 
     System.out.println(
       String.format("SELECT id, text FROM `example.searchable` t WHERE (%s) ORDER BY id ASC LIMIT 10 OFFSET 0",
-        new BigQuerySearchCompiler("t.analyzed", true).compile(Query.fromString("hello world"))));
+        new BigQuerySearchCompiler("t.analyzed", true).compile(BigQuerySearching.recommendedParseQuery("hello world"))));
 
    SELECT id, text FROM `example.searchable` t WHERE ((SEARCH(c.text, 'hello world')) ORDER BY id ASC LIMIT 10 OFFSET 0
 
