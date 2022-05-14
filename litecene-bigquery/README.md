@@ -8,10 +8,12 @@ This module supports the following full-text search features:
 
 * Full litecene syntax support
 * BigQuery search index integration
+* English, French, Spanish, German, Italian, Portuguese, and other Latin languages (searches 7-bit ASCII after Unicode NFKD normalization and mark removal)
 
 This module does not support the following full-text search features:
 
 * Match scoring
+* Non-latin languages (CJK, Russian, Arabic, Hindi, Hebrew, etc.)
 
 ## Preparation
 
