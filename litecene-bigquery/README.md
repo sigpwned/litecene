@@ -39,7 +39,7 @@ The following query materialized view can be used to create a materialized view 
       text,
       LOWER(TRIM(REGEXP_REPLACE(REGEXP_REPLACE(NORMALIZE(text, NFKD), r"\p{M}", ''), r"[^a-zA-Z0-9]+", ' '))) AS analyzed
     FROM
-      `example.table` c
+      `example.table`
 
 This approach will incur additional cost, but for most datasets, the cost will be negligible.
 
