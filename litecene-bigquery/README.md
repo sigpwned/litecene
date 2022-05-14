@@ -69,8 +69,8 @@ BigQuery is (finally) adding [features to support full-text search natively](htt
     System.out.println(
       String.format("SELECT id, text FROM `example.searchable` t WHERE (%s) ORDER BY id ASC LIMIT 10 OFFSET 0",
         new BigQuerySearchCompiler("t.analyzed", true).compile(BigQuerySearching.recommendedParseQuery("\"hello world\""))));
-
-   SELECT id, text FROM `example.searchable` t WHERE ((SEARCH(c.text, 'hello world')) AND (REGEXP_CONTAINS(c.text, r"\b\Qhello\E\b \b\Qworld\E\b"))) ORDER BY id ASC LIMIT 10 OFFSET 0
+    
+    SELECT id, text FROM `example.searchable` t WHERE ((SEARCH(c.text, 'hello world')) AND (REGEXP_CONTAINS(c.text, r"\b\Qhello\E\b \b\Qworld\E\b"))) ORDER BY id ASC LIMIT 10 OFFSET 0
 
 Note the new second argument to the `BigQuerySearchCompiler`.
 
@@ -79,6 +79,6 @@ The `SEARCH` function is used if litecene detects that some non-wildcard tokens 
     System.out.println(
       String.format("SELECT id, text FROM `example.searchable` t WHERE (%s) ORDER BY id ASC LIMIT 10 OFFSET 0",
         new BigQuerySearchCompiler("t.analyzed", true).compile(BigQuerySearching.recommendedParseQuery("hello world"))));
-
-   SELECT id, text FROM `example.searchable` t WHERE ((SEARCH(c.text, 'hello world')) ORDER BY id ASC LIMIT 10 OFFSET 0
+    
+    SELECT id, text FROM `example.searchable` t WHERE ((SEARCH(c.text, 'hello world')) ORDER BY id ASC LIMIT 10 OFFSET 0
 
