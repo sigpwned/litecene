@@ -4,24 +4,24 @@ A simple cross-data store full-text search language implemented for Java 8+
 
 ## Motivation
 
-Full-text search is a key feature of modern applications. However, different data stores expose different syntaxes for performing full-text search, and many of these syntaxes are not user-friendly. Some data stores don't expose any full-text search features at all! This makes it difficult to expose a consistent user-facing search experience. Litecene is a familiar standard query language based on [Lucene syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html) with transpilers to popular data stores like BigQuery that makes it easy for developers to expose a consistent, user-friendly search syntax to users while making the most of their application data store's full-text search features.
+Full-text search is a key feature of modern applications. However, different data stores expose different syntaxes for performing full-text search, and many of these syntaxes are not user-friendly. Some data stores don't expose any full-text search features at all! This makes it difficult for developers to expose a consistent user-facing search experience. Litecene is a familiar standard query language based on [Lucene syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html) with transpilers to popular data stores like BigQuery that makes it easy for developers to expose a consistent, user-friendly search syntax to users while making the most of their application data store's full-text search features.
 
 ## Goals
 
-* Define a common query syntax that can be transpiled to a broad range of data stores
-* Create transpilers with popular data backends
-* To maximize performance
+* Define a well-documented, user-friendly query syntax that can be transpiled to a broad range of data stores
+* Provide transpilers for popular data stores out-of-the-box
+* Allow developers to create transpilers of their own to support data stores without out-of-the-box support
 
 ## Non-Goals
 
 * Identical search behavior across all data stores (This is not possible when different data stores make different decisions about their full-text search features)
 * Support all languages across all data stores (Language support is limited by data backend feature sets)
-* Support all data backends
+* Support all data stores
 * Support search of non-text fields (e.g., integers, dates)
 
 ## Query Syntax
 
-This section describes the common Litecene query syntax. Note that different backends implement query matching differently. This section merely describes what constitutes a valid query and the logical definition of a match; each backend implementation documents exactly how valid queries are matched in that backend.
+This section describes the common Litecene query syntax. Note that different transpilers may implement text search for the same query differently. This section merely describes what constitutes a valid query and the logical definition of a match; each transpiler implementation documents exactly how valid queries are matched in the associated data store.
 
 As an example, this might be a good Litecene query to identify social media posts mentioning common ways people user their smartphones:
 
@@ -69,14 +69,14 @@ A term in a phrase clause can end with a wildcard (`*`) to indicate a prefix sea
 
 #### Proximity Phrase Clause
 
-A phrase clause can be followed immediately by a tilde (`~`) and an integer number to indicate a proximity search. In this case, a matching document must contain all the given regular or prefix terms within the given number of terms of each other. The following are valid Litecene phrase clauses with proximity:
+A phrase clause can be followed immediately by a tilde (`~`) and an integer number to indicate a proximity search. In this case, a matching document must contain all the given regular or prefix terms within the given number of terms of each other in any order. The proximity length must be at least the number of terms in the phrase. The following are valid Litecene phrase clauses with proximity:
 
 * `"hello, world!"~8`
 * `"It wa* the best of times"~10`
 
 ### List Clause
 
-A list clause is two or more valid Litecene search clauses separated by whitespace. The following are all valid Litecene phrase clauses:
+A list clause is two or more valid Litecene search clauses separated by whitespace. A matching document must match the given clauses in any order. The following are all valid Litecene phrase clauses:
 
 * `hello, world!`
 * `The rain in Spain falls mainly on the plains.`
@@ -101,14 +101,14 @@ An and clause is a valid Litecene search clause followed by the keyword `AND` fo
 
 ### Or Clause
 
-An or clause is a valid Litecene search clause followed by the keyword `OR` followed by another Litecene search clause. Multiple `OR` clauses can be appended to the same or clause. When and and or clauses are interleaved, the `AND` operator binds tighter. A group clause can be used to make query a query clearer. A matching document must match at least one of the given clauses. The following are all valid Litecene or clauses:
+An or clause is a valid Litecene search clause followed by the keyword `OR` followed by another Litecene search clause. Multiple `OR` clauses can be appended to the same or clause. When and and or clauses are interleaved, the `AND` operator binds tighter. A group clause can be used to make a query clearer and easier to understand. A matching document must match at least one of the given clauses. The following are all valid Litecene or clauses:
 
 * `hello OR world`
 * "My Fair Lady"~8 OR Pygmalion`
 
 ### Not Clause
 
-A note clause is the `NOT` keyword followed by another Litecene search clause. A matching document must *not* match the given clause. The following are all valid Litcene not clauses:
+A not clause is the `NOT` keyword followed by another Litecene search clause. A matching document must *not* match the given clause. The following are all valid Litcene not clauses:
 
 * `NOT hello`
 * `NOT "hello, world!"`
