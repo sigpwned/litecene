@@ -34,6 +34,26 @@ public abstract class Token {
     }
 
     @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = prime * result + Objects.hash(text);
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (!super.equals(obj))
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      ConstantToken other = (ConstantToken) obj;
+      return Objects.equals(text, other.text);
+    }
+
+    @Override
     public String toString() {
       return text;
     }
@@ -78,7 +98,7 @@ public abstract class Token {
 
   private final Type type;
 
-  public Token(Type type) {
+  protected Token(Type type) {
     if (type == null)
       throw new NullPointerException();
     this.type = type;

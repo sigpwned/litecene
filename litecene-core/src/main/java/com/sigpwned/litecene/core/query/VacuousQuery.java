@@ -22,7 +22,7 @@ package com.sigpwned.litecene.core.query;
 import com.sigpwned.litecene.core.Query;
 
 public class VacuousQuery extends Query {
-  public static VacuousQuery INSTANCE = new VacuousQuery();
+  public static final VacuousQuery INSTANCE = new VacuousQuery();
 
   @Override
   public String toString() {

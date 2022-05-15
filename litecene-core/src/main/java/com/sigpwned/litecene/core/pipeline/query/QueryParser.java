@@ -125,7 +125,7 @@ public class QueryParser implements QueryPipeline {
     switch (t.getType()) {
       case TEXT: {
         TextToken tt = t.asText();
-        if (tt.getTerms().size() == 0) {
+        if (tt.getTerms().isEmpty()) {
           return VacuousQuery.INSTANCE;
         } else {
           return new TextQuery(tt.getTerms(), tt.getProximity());

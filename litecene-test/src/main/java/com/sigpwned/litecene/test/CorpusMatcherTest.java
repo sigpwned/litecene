@@ -68,7 +68,7 @@ public abstract class CorpusMatcherTest {
 
   public CorpusMatcher matcher;
 
-  public CorpusMatcherTest(CorpusMatcher matcher) {
+  protected CorpusMatcherTest(CorpusMatcher matcher) {
     this.matcher = matcher;
   }
 

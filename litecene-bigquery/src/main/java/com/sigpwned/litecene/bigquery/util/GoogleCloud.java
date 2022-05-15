@@ -28,7 +28,7 @@ import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.bigquery.BigQueryOptions;
+import com.google.cloud.ServiceOptions;
 
 public final class GoogleCloud {
   private GoogleCloud() {}
@@ -36,7 +36,7 @@ public final class GoogleCloud {
   /**
    * The name of the environment variable to check for credentials
    */
-  public static final String CREDENTIAL_ENV_NAME = BigQueryOptions.CREDENTIAL_ENV_NAME;
+  public static final String CREDENTIAL_ENV_NAME = ServiceOptions.CREDENTIAL_ENV_NAME;
 
   /**
    * The default file to check for credentials

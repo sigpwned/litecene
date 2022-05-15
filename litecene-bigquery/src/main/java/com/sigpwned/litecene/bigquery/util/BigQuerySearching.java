@@ -19,7 +19,7 @@
  */
 package com.sigpwned.litecene.bigquery.util;
 
-import java.io.IOException;
+import java.io.UncheckedIOException;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
 import com.sigpwned.litecene.core.Query;
@@ -68,9 +68,10 @@ public final class BigQuerySearching {
 
   /**
    * Build a default BigQuery client using {@link GoogleCloud#getDefaultCredentials()}.
-   * @throws IOException 
+   * 
+   * @throws UncheckedIOException if there is a problem reading default credentials
    */
-  public static BigQuery getDefaultClient() throws IOException {
+  public static BigQuery getDefaultClient() {
     return BigQueryOptions.newBuilder().setCredentials(GoogleCloud.getDefaultCredentials()).build()
         .getService();
   }

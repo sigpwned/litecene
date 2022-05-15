@@ -29,7 +29,7 @@ import com.sigpwned.litecene.core.QueryPipeline;
 public abstract class FilterQueryPipeline implements QueryPipeline {
   private final QueryPipeline upstream;
 
-  public FilterQueryPipeline(QueryPipeline upstream) {
+  protected FilterQueryPipeline(QueryPipeline upstream) {
     this.upstream = upstream;
   }
 

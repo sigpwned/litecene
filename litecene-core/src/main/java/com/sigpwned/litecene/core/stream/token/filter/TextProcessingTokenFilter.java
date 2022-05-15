@@ -33,7 +33,7 @@ import com.sigpwned.litecene.core.util.Terms;
  * Rewrite text tokens only (i.e., term and phrase)
  */
 public abstract class TextProcessingTokenFilter extends TokenFilter {
-  public TextProcessingTokenFilter(TokenStream upstream) {
+  protected TextProcessingTokenFilter(TokenStream upstream) {
     super(upstream);
   }
 

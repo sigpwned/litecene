@@ -29,7 +29,7 @@ import com.sigpwned.litecene.core.TokenStream;
 public abstract class TokenFilter implements TokenStream {
   private final TokenStream upstream;
 
-  public TokenFilter(TokenStream upstream) {
+  protected TokenFilter(TokenStream upstream) {
     this.upstream = upstream;
   }
 

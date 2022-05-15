@@ -167,7 +167,7 @@ public class ExampleCorpusMatcher implements CorpusMatcher {
           }
           return result;
         } else {
-          Pattern p = Pattern.compile(text.getTerms().stream().map(t -> compile(t))
+          Pattern p = Pattern.compile(text.getTerms().stream().map(this::compile)
               .map(Pattern::pattern).collect(joining(" ")), Pattern.CASE_INSENSITIVE);
           return corpus.getDocuments().stream().filter(d -> p.matcher(d.getText()).find())
               .map(Document::getId).collect(toSet());

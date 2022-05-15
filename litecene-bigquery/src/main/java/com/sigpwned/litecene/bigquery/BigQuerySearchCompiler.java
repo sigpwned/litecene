@@ -167,8 +167,8 @@ public class BigQuerySearchCompiler {
               proximity);
         } else {
           // The tokens must be in order. We simply search for all the regular expressions in order
-          return String.format("REGEXP_CONTAINS(%s, r\"%s\")", field,
-              text.getTerms().stream().map(t -> pattern(t)).collect(joining(" ")));
+          return String.format("REGEXP_CONTAINS(%s, r\"%s\")", field, text.getTerms().stream()
+              .map(BigQuerySearchCompiler.this::pattern).collect(joining(" ")));
         }
       }
 

@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.HashSet;
 import java.util.Set;
 import com.sigpwned.litecene.core.Query;
+import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.query.AndQuery;
 import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
@@ -199,7 +200,7 @@ public final class MoreQueries {
        */
       @Override
       public Set<String> text(TextQuery text) {
-        return text.getTerms().stream().filter(t -> !t.isWildcard()).map(t -> t.getText())
+        return text.getTerms().stream().filter(t -> !t.isWildcard()).map(Term::getText)
             .collect(toSet());
       }
 

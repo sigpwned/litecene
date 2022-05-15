@@ -28,7 +28,7 @@ import com.sigpwned.litecene.core.CodePointStream;
 public abstract class CodePointFilter implements CodePointStream {
   private final CodePointStream upstream;
 
-  public CodePointFilter(CodePointStream upstream) {
+  protected CodePointFilter(CodePointStream upstream) {
     this.upstream = upstream;
   }
 

@@ -53,9 +53,9 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
     return new QueryProcessor<Query>(new QueryProcessor.Processor<Query>() {
       @Override
       public Query and(AndQuery and) {
-        List<Query> children =
-            and.getChildren().stream().map(c -> simplify(c)).map(c -> unpack(c, AndQuery.class))
-                .filter(c -> !Queries.isVacuous(c)).collect(toList());
+        List<Query> children = and.getChildren().stream()
+            .map(SimplifyQueryFilterPipeline.this::simplify).map(c -> unpack(c, AndQuery.class))
+            .filter(c -> !Queries.isVacuous(c)).collect(toList());
 
         List<Query> cs = new ArrayList<>();
         for (Query child : children) {
@@ -66,7 +66,7 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
           }
         }
 
-        if (cs.size() == 0)
+        if (cs.isEmpty())
           return VacuousQuery.INSTANCE;
         else if (cs.size() == 1)
           return cs.get(0);
@@ -76,9 +76,9 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
 
       @Override
       public Query or(OrQuery or) {
-        List<Query> children =
-            or.getChildren().stream().map(c -> simplify(c)).map(c -> unpack(c, OrQuery.class))
-                .filter(c -> !Queries.isVacuous(c)).collect(toList());
+        List<Query> children = or.getChildren().stream()
+            .map(SimplifyQueryFilterPipeline.this::simplify).map(c -> unpack(c, OrQuery.class))
+            .filter(c -> !Queries.isVacuous(c)).collect(toList());
 
         List<Query> cs = new ArrayList<>();
         for (Query child : children) {
@@ -89,7 +89,7 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
           }
         }
 
-        if (cs.size() == 0)
+        if (cs.isEmpty())
           return VacuousQuery.INSTANCE;
         else if (cs.size() == 1)
           return cs.get(0);
@@ -99,9 +99,9 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
 
       @Override
       public Query list(ListQuery list) {
-        List<Query> children =
-            list.getChildren().stream().map(c -> simplify(c)).map(c -> unpack(c, ListQuery.class))
-                .filter(c -> !Queries.isVacuous(c)).collect(toList());
+        List<Query> children = list.getChildren().stream()
+            .map(SimplifyQueryFilterPipeline.this::simplify).map(c -> unpack(c, ListQuery.class))
+            .filter(c -> !Queries.isVacuous(c)).collect(toList());
 
         List<Query> cs = new ArrayList<>();
         for (Query child : children) {
@@ -112,7 +112,7 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
           }
         }
 
-        if (cs.size() == 0)
+        if (cs.isEmpty())
           return VacuousQuery.INSTANCE;
         else if (cs.size() == 1)
           return cs.get(0);
