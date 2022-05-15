@@ -157,3 +157,7 @@ Token filters can make arbitrary changes to token text, but cannot add or remove
 Litecene allows for arbitrary query transformations using a `QueryPipeline`. Litecene core contains the following query pipelines:
 
 * `SimplifyQueryFilterPipeline` -- Restructures a query to remove "vacuous" terms (e.g., terms with no text) and simplify logic (e.g., merge adjacent and queries)
+
+## Roadmap
+
+Litecene's roadmap is always available [here](https://github.com/sigpwned/litecene/projects/2). Please feel free to open or comment on issues if you have feedback!
