@@ -28,7 +28,6 @@ import java.io.InterruptedIOException;
 import java.util.List;
 import org.junit.Test;
 import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Streams;
@@ -48,7 +47,7 @@ public class BigQueryAnalysisIT {
             .collect(joining(" UNION ALL ")),
         BigQuerySearching.recommendedAnalysisExpr("text"));
 
-    BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
+    BigQuery bigquery = BigQuerySearching.getDefaultClient();
 
     QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(sql).build();
 
