@@ -1,6 +1,6 @@
 # LITECENE
 
-Simplified boolean query language for full-text search
+A simple cross-data store full-text search language implemented for Java 8+
 
 ## Motivation
 
