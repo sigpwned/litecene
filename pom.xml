@@ -3,7 +3,7 @@
 
     <groupId>com.sigpwned</groupId>
     <artifactId>litecene</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.0-SNAPSHOT</version>
     <name>litecene</name>
     <inceptionYear>2022</inceptionYear>
     <description>A simple text search query language for Java 8+</description>
