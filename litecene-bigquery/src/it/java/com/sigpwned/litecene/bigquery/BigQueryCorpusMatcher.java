@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.Set;
 import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Streams;
@@ -46,7 +45,7 @@ public class BigQueryCorpusMatcher implements CorpusMatcher {
         BigQuerySearching.recommendedAnalysisExpr("text"),
         new BigQuerySearchCompiler("a.analyzed", true).compile(query));
 
-    BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
+    BigQuery bigquery = BigQuerySearching.getDefaultClient();
 
     QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(sql).build();
 

@@ -19,6 +19,9 @@
  */
 package com.sigpwned.litecene.bigquery.util;
 
+import java.io.IOException;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.BigQueryOptions;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.QueryPipeline;
 import com.sigpwned.litecene.core.pipeline.query.QueryParser;
@@ -61,5 +64,14 @@ public final class BigQuerySearching {
     return String.format(
         "LOWER(TRIM(REGEXP_REPLACE(REGEXP_REPLACE(NORMALIZE(%s, NFKD), r\"\\p{M}\", ''), r\"[^a-zA-Z0-9]+\", ' ')))",
         field);
+  }
+
+  /**
+   * Build a default BigQuery client using {@link GoogleCloud#getDefaultCredentials()}.
+   * @throws IOException 
+   */
+  public static BigQuery getDefaultClient() throws IOException {
+    return BigQueryOptions.newBuilder().setCredentials(GoogleCloud.getDefaultCredentials()).build()
+        .getService();
   }
 }
