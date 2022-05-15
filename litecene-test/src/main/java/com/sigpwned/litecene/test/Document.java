@@ -30,6 +30,7 @@ public class Document {
   private final String id;
   private final String text;
 
+  @Generated
   public Document(String id, String text) {
     this.id = id;
     this.text = text;
