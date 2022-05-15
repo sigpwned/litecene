@@ -70,11 +70,13 @@ public class Term {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(text, wildcard);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -87,6 +89,7 @@ public class Term {
   }
 
   @Override
+  @Generated
   public String toString() {
     return "Term [text=" + text + ", wildcard=" + wildcard + "]";
   }

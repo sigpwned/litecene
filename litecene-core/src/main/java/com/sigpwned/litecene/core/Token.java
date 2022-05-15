@@ -28,12 +28,14 @@ public abstract class Token {
   private static class ConstantToken extends Token {
     private final String text;
 
+    @Generated
     public ConstantToken(Type type, String text) {
       super(type);
       this.text = text;
     }
 
     @Override
+    @Generated
     public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
@@ -42,6 +44,7 @@ public abstract class Token {
     }
 
     @Override
+    @Generated
     public boolean equals(Object obj) {
       if (this == obj)
         return true;
@@ -54,8 +57,9 @@ public abstract class Token {
     }
 
     @Override
+    @Generated
     public String toString() {
-      return text;
+      return "ConstantToken [text=" + text + "]";
     }
   }
 
