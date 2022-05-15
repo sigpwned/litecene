@@ -60,6 +60,7 @@ public class ParenQuery extends Query {
   }
 
   @Override
+  @Generated
   public String toString() {
     return "ParenQuery [child=" + child + "]";
   }

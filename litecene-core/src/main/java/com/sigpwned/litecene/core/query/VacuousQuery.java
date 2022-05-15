@@ -20,11 +20,13 @@
 package com.sigpwned.litecene.core.query;
 
 import com.sigpwned.litecene.core.Query;
+import com.sigpwned.litecene.core.linting.Generated;
 
 public class VacuousQuery extends Query {
   public static final VacuousQuery INSTANCE = new VacuousQuery();
 
   @Override
+  @Generated
   public String toString() {
     return "VacuousQuery []";
   }

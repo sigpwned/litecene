@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.OptionalInt;
 import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.Token;
+import com.sigpwned.litecene.core.linting.Generated;
 
 public class TextToken extends Token {
   private final List<Term> terms;
@@ -55,11 +56,13 @@ public class TextToken extends Token {
   /**
    * @return the terms
    */
+  @Generated
   public List<Term> getTerms() {
     return terms;
   }
 
   @Override
+  @Generated
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -68,6 +71,7 @@ public class TextToken extends Token {
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -80,6 +84,7 @@ public class TextToken extends Token {
   }
 
   @Override
+  @Generated
   public String toString() {
     final int maxLen = 10;
     return "TextToken [terms="

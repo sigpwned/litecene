@@ -20,6 +20,7 @@
 package com.sigpwned.litecene.test;
 
 import java.util.Objects;
+import com.sigpwned.litecene.core.linting.Generated;
 
 public class Document {
   public static Document of(String id, String text) {
@@ -37,6 +38,7 @@ public class Document {
   /**
    * @return the id
    */
+  @Generated
   public String getId() {
     return id;
   }
@@ -44,16 +46,19 @@ public class Document {
   /**
    * @return the text
    */
+  @Generated
   public String getText() {
     return text;
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(id, text);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -66,6 +71,7 @@ public class Document {
   }
 
   @Override
+  @Generated
   public String toString() {
     return "Document [id=" + id + ", text=" + text + "]";
   }

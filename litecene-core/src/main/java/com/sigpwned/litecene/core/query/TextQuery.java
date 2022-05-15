@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.OptionalInt;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.Term;
+import com.sigpwned.litecene.core.linting.Generated;
 
 public class TextQuery extends Query {
   private final List<Term> terms;
@@ -50,6 +51,7 @@ public class TextQuery extends Query {
   /**
    * @return the terms
    */
+  @Generated
   public List<Term> getTerms() {
     return terms;
   }
@@ -62,11 +64,13 @@ public class TextQuery extends Query {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(proximity, terms);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -79,6 +83,7 @@ public class TextQuery extends Query {
   }
 
   @Override
+  @Generated
   public String toString() {
     final int maxLen = 10;
     return "TextQuery [terms="

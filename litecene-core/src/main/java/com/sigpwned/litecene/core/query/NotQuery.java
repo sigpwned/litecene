@@ -41,11 +41,13 @@ public class NotQuery extends Query {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(child);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -58,6 +60,7 @@ public class NotQuery extends Query {
   }
 
   @Override
+  @Generated
   public String toString() {
     return "NotQuery [child=" + child + "]";
   }

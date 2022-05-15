@@ -22,6 +22,7 @@ package com.sigpwned.litecene.test;
 import static java.util.Collections.unmodifiableList;
 import java.util.List;
 import java.util.Objects;
+import com.sigpwned.litecene.core.linting.Generated;
 
 public class Corpus {
   public static Corpus of(List<Document> documents) {
@@ -37,16 +38,19 @@ public class Corpus {
   /**
    * @return the documents
    */
+  @Generated
   public List<Document> getDocuments() {
     return documents;
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(documents);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -59,6 +63,7 @@ public class Corpus {
   }
 
   @Override
+  @Generated
   public String toString() {
     final int maxLen = 10;
     return "Corpus [documents="

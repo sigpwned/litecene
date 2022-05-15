@@ -64,6 +64,7 @@ public class ListQuery extends Query {
   }
 
   @Override
+  @Generated
   public String toString() {
     return "ListQuery [children=" + children + "]";
   }

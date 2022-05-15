@@ -62,6 +62,7 @@ public class AndQuery extends Query {
   }
 
   @Override
+  @Generated
   public String toString() {
     return "AndQuery [children=" + children + "]";
   }

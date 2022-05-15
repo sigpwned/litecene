@@ -24,13 +24,15 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import java.text.Normalizer;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import com.google.common.collect.Lists;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.Term;
@@ -140,14 +142,21 @@ public class ExampleCorpusMatcher implements CorpusMatcher {
           Set<String> result = new HashSet<>();
           documents: for (Document doc : corpus.getDocuments()) {
             // These are the tokens in our document string
-            List<String> tokens =
-                TOKEN.matcher(doc.getText()).results().map(MatchResult::group).collect(toList());
+            String doctext = TOKEN.matcher(doc.getText()).results().map(MatchResult::group)
+                .collect(joining(" "));
+
+            // Create a map of index in doctext to token position for proximity
+            AtomicInteger position = new AtomicInteger(0);
+            Map<Integer, Integer> indexToPosition = new HashMap<>();
+            TOKEN.matcher(doctext).results().sequential().forEach(m -> {
+              indexToPosition.put(m.start(), position.getAndIncrement());
+            });
 
             // For each term in our query string, these are the indexes of the tokens that match
             List<List<Integer>> matches = text.getTerms().stream().map(t -> {
-              Pattern p = compile(t);
-              return IntStream.range(0, tokens.size())
-                  .filter(i -> p.matcher(tokens.get(i)).matches()).boxed().collect(toList());
+              // Build a list of matching token positions for each term
+              return compile(t).matcher(doctext).results().map(m -> indexToPosition.get(m.start()))
+                  .collect(toList());
             }).collect(toList());
 
             // If any permutation of matches fits in the given proximity, then this document

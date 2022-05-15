@@ -64,6 +64,7 @@ public class OrQuery extends Query {
   }
 
   @Override
+  @Generated
   public String toString() {
     return "OrQuery [children=" + children + "]";
   }
