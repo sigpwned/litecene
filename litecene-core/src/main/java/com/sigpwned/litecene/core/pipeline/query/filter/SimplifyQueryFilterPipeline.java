@@ -20,6 +20,7 @@
 package com.sigpwned.litecene.core.pipeline.query.filter;
 
 import static java.util.stream.Collectors.toList;
+import java.util.ArrayList;
 import java.util.List;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.QueryPipeline;
@@ -52,11 +53,20 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
     return new QueryProcessor<Query>(new QueryProcessor.Processor<Query>() {
       @Override
       public Query and(AndQuery and) {
-        List<Query> cs = and.getChildren().stream().map(c -> simplify(c))
-            .filter(c -> !Queries.isVacuous(c)).collect(toList());
-        if (cs.size() == and.getChildren().size())
-          return and;
-        else if (cs.size() == 0)
+        List<Query> children =
+            and.getChildren().stream().map(c -> simplify(c)).map(c -> unpack(c, AndQuery.class))
+                .filter(c -> !Queries.isVacuous(c)).collect(toList());
+
+        List<Query> cs = new ArrayList<>();
+        for (Query child : children) {
+          if (child instanceof AndQuery) {
+            cs.addAll(((AndQuery) child).getChildren());
+          } else {
+            cs.add(child);
+          }
+        }
+
+        if (cs.size() == 0)
           return VacuousQuery.INSTANCE;
         else if (cs.size() == 1)
           return cs.get(0);
@@ -66,11 +76,20 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
 
       @Override
       public Query or(OrQuery or) {
-        List<Query> cs = or.getChildren().stream().map(c -> simplify(c))
-            .filter(c -> !Queries.isVacuous(c)).collect(toList());
-        if (cs.size() == or.getChildren().size())
-          return or;
-        else if (cs.size() == 0)
+        List<Query> children =
+            or.getChildren().stream().map(c -> simplify(c)).map(c -> unpack(c, OrQuery.class))
+                .filter(c -> !Queries.isVacuous(c)).collect(toList());
+
+        List<Query> cs = new ArrayList<>();
+        for (Query child : children) {
+          if (child instanceof OrQuery) {
+            cs.addAll(((OrQuery) child).getChildren());
+          } else {
+            cs.add(child);
+          }
+        }
+
+        if (cs.size() == 0)
           return VacuousQuery.INSTANCE;
         else if (cs.size() == 1)
           return cs.get(0);
@@ -79,28 +98,54 @@ public class SimplifyQueryFilterPipeline extends FilterQueryPipeline {
       }
 
       @Override
-      public Query not(NotQuery not) {
-        Query c = simplify(not.getChild());
-        if (Queries.isVacuous(c))
-          return VacuousQuery.INSTANCE;
-        else if (c.equals(not.getChild()))
-          return not;
-        else
-          return new NotQuery(c);
-      }
-
-      @Override
       public Query list(ListQuery list) {
-        List<Query> cs = list.getChildren().stream().map(c -> simplify(c))
-            .filter(c -> !Queries.isVacuous(c)).collect(toList());
-        if (cs.size() == list.getChildren().size())
-          return list;
-        else if (cs.size() == 0)
+        List<Query> children =
+            list.getChildren().stream().map(c -> simplify(c)).map(c -> unpack(c, ListQuery.class))
+                .filter(c -> !Queries.isVacuous(c)).collect(toList());
+
+        List<Query> cs = new ArrayList<>();
+        for (Query child : children) {
+          if (child instanceof ListQuery) {
+            cs.addAll(((ListQuery) child).getChildren());
+          } else {
+            cs.add(child);
+          }
+        }
+
+        if (cs.size() == 0)
           return VacuousQuery.INSTANCE;
         else if (cs.size() == 1)
           return cs.get(0);
         else
           return new ListQuery(cs);
+      }
+
+      /**
+       * Unpack exactly one level of parentheses around a query of a given type. This is to unpack,
+       * for example, child AND queries into parent AND queries.
+       */
+      protected Query unpack(Query q, Class<? extends Query> c) {
+        if (q instanceof ParenQuery) {
+          ParenQuery pq = (ParenQuery) q;
+          if (c.isInstance(pq.getChild())) {
+            return pq.getChild();
+          }
+        }
+        return q;
+      }
+
+      @Override
+      public Query not(NotQuery not) {
+        Query c = simplify(not.getChild());
+        if (Queries.isVacuous(c))
+          return VacuousQuery.INSTANCE;
+        else if (c instanceof NotQuery) {
+          NotQuery not2 = (NotQuery) c;
+          return not2.getChild();
+        } else if (c.equals(not.getChild()))
+          return not;
+        else
+          return new NotQuery(c);
       }
 
       @Override

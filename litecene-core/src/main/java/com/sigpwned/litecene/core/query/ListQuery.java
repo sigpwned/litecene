@@ -20,7 +20,6 @@
 package com.sigpwned.litecene.core.query;
 
 import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.joining;
 import java.util.List;
 import java.util.Objects;
 import com.sigpwned.litecene.core.Query;
@@ -66,6 +65,6 @@ public class ListQuery extends Query {
 
   @Override
   public String toString() {
-    return getChildren().stream().map(Objects::toString).collect(joining(" "));
+    return "ListQuery [children=" + children + "]";
   }
 }

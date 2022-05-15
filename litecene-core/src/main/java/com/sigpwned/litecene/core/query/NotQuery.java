@@ -59,6 +59,6 @@ public class NotQuery extends Query {
 
   @Override
   public String toString() {
-    return "NOT " + getChild().toString();
+    return "NotQuery [child=" + child + "]";
   }
 }

@@ -61,6 +61,6 @@ public class ParenQuery extends Query {
 
   @Override
   public String toString() {
-    return "(" + getChild().toString() + ")";
+    return "ParenQuery [child=" + child + "]";
   }
 }

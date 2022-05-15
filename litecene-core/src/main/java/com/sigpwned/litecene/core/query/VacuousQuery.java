@@ -26,6 +26,6 @@ public class VacuousQuery extends Query {
 
   @Override
   public String toString() {
-    return "";
+    return "VacuousQuery []";
   }
 }

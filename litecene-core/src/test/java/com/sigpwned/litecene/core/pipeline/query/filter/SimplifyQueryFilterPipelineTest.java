@@ -27,6 +27,9 @@ import org.junit.Test;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.Term;
 import com.sigpwned.litecene.core.pipeline.query.QueryParser;
+import com.sigpwned.litecene.core.query.AndQuery;
+import com.sigpwned.litecene.core.query.ListQuery;
+import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.TextQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.stream.codepoint.StringCodePointSource;
@@ -59,6 +62,13 @@ public class SimplifyQueryFilterPipelineTest {
   }
 
   @Test
+  public void shouldUnpackDoubleNotTerm() {
+    Query simplifiedQuery = parseQuery("NOT NOT a");
+    assertThat(simplifiedQuery,
+        is(new TextQuery(asList(Term.fromString("a")), OptionalInt.empty())));
+  }
+
+  @Test
   public void shouldRemoveVacuousGroupTerm() {
     Query simplifiedQuery = parseQuery("(\"\")");
     assertThat(simplifiedQuery, is(VacuousQuery.INSTANCE));
@@ -68,5 +78,41 @@ public class SimplifyQueryFilterPipelineTest {
   public void shouldRemoveVacuousTerm() {
     Query simplifiedQuery = parseQuery("\"\"");
     assertThat(simplifiedQuery, is(VacuousQuery.INSTANCE));
+  }
+
+  @Test
+  public void shouldPullUpAndQuery() {
+    Query simplifiedQuery = parseQuery("a AND (b AND c)");
+    assertThat(simplifiedQuery,
+        is(new AndQuery(asList(new TextQuery(asList(Term.fromString("a")), OptionalInt.empty()),
+            new TextQuery(asList(Term.fromString("b")), OptionalInt.empty()),
+            new TextQuery(asList(Term.fromString("c")), OptionalInt.empty())))));
+  }
+
+  @Test
+  public void shouldPullUpOrQuery() {
+    Query simplifiedQuery = parseQuery("a OR (b OR c)");
+    assertThat(simplifiedQuery,
+        is(new OrQuery(asList(new TextQuery(asList(Term.fromString("a")), OptionalInt.empty()),
+            new TextQuery(asList(Term.fromString("b")), OptionalInt.empty()),
+            new TextQuery(asList(Term.fromString("c")), OptionalInt.empty())))));
+  }
+
+  @Test
+  public void shouldPullUpListQuery() {
+    Query simplifiedQuery = parseQuery("a (b c)");
+    assertThat(simplifiedQuery,
+        is(new ListQuery(asList(new TextQuery(asList(Term.fromString("a")), OptionalInt.empty()),
+            new TextQuery(asList(Term.fromString("b")), OptionalInt.empty()),
+            new TextQuery(asList(Term.fromString("c")), OptionalInt.empty())))));
+  }
+
+  @Test
+  public void shouldUnpackLonelyTerm() {
+    Query simplifiedQuery = parseQuery("a b (c)");
+    assertThat(simplifiedQuery,
+        is(new ListQuery(asList(new TextQuery(asList(Term.fromString("a")), OptionalInt.empty()),
+            new TextQuery(asList(Term.fromString("b")), OptionalInt.empty()),
+            new TextQuery(asList(Term.fromString("c")), OptionalInt.empty())))));
   }
 }

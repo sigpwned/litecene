@@ -109,7 +109,7 @@ public class QueryParser implements QueryPipeline {
   private Query query4() {
     if (ts.peek().getType() == Token.Type.NOT) {
       ts.next(); // NOT
-      return new NotQuery(query5());
+      return new NotQuery(query4());
     } else {
       return query5();
     }

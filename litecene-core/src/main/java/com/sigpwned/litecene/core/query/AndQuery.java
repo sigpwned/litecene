@@ -20,7 +20,6 @@
 package com.sigpwned.litecene.core.query;
 
 import static java.util.Collections.unmodifiableList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import com.sigpwned.litecene.core.Query;
@@ -64,15 +63,6 @@ public class AndQuery extends Query {
 
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder();
-
-    Iterator<Query> iterator = getChildren().iterator();
-    result.append(iterator.next().toString());
-    while (iterator.hasNext()) {
-      result.append(" AND ");
-      result.append(iterator.next().toString());
-    }
-
-    return result.toString();
+    return "AndQuery [children=" + children + "]";
   }
 }
