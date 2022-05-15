@@ -1,4 +1,4 @@
-# LITECENE
+# LITECENE [![tests](https://github.com/sigpwned/litecene/actions/workflows/tests.yml/badge.svg)](https://github.com/sigpwned/litecene/actions/workflows/tests.yml) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=sigpwned_litecene&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=sigpwned_litecene) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=sigpwned_litecene&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=sigpwned_litecene) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=sigpwned_litecene&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=sigpwned_litecene)
 
 A simple cross-data store full-text search language implemented for Java 8+
 
