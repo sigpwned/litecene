@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import com.sigpwned.litecene.core.Query;
 import com.sigpwned.litecene.core.Term;
+import com.sigpwned.litecene.core.pipeline.query.filter.SimplifyQueryFilterPipeline;
 import com.sigpwned.litecene.core.query.AndQuery;
 import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.NotQuery;
@@ -32,7 +33,6 @@ import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.ParenQuery;
 import com.sigpwned.litecene.core.query.TextQuery;
 import com.sigpwned.litecene.core.query.VacuousQuery;
-import com.sigpwned.litecene.core.util.Queries;
 import com.sigpwned.litecene.core.util.QueryProcessor;
 
 public final class MoreQueries {
@@ -127,7 +127,7 @@ public final class MoreQueries {
    * 
    * @param q The query to analyze. Must be simplified.
    * 
-   * @see Queries#simplify(Query)
+   * @see SimplifyQueryFilterPipeline
    */
   public static Set<String> requiredTokens(Query q) {
     return new QueryProcessor<Set<String>>(new QueryProcessor.Processor<Set<String>>() {
