@@ -1,6 +1,6 @@
 # LITECENE BIGQUERY
 
-This module provides full-text search support using the litecene boolean query syntax to BigQuery.
+This module provides BigQuery full-text search support using the litecene boolean query syntax.
 
 ## Features
 
