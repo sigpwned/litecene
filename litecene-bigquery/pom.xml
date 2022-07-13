@@ -15,7 +15,7 @@
         <dependency>
           <groupId>com.google.cloud</groupId>
           <artifactId>libraries-bom</artifactId>
-          <version>25.3.0</version>
+          <version>26.0.0</version>
           <type>pom</type>
           <scope>import</scope>
         </dependency>
@@ -36,16 +36,6 @@
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-bigquery</artifactId>
         </dependency>
-        <dependency>
-  <groupId>com.google.zetasql</groupId>
-  <artifactId>zetasql-jni-channel</artifactId>
-  <version>2022.04.1</version>
-</dependency>
-<dependency>
-  <groupId>com.google.zetasql</groupId>
-  <artifactId>zetasql-client</artifactId>
-  <version>2022.04.1</version>
-</dependency>
 
         <dependency>
             <groupId>com.sigpwned</groupId>
