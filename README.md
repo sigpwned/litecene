@@ -105,7 +105,7 @@ An and clause is a valid Litecene search clause followed by the keyword `AND` fo
 An or clause is a valid Litecene search clause followed by the keyword `OR` followed by another Litecene search clause. Multiple `OR` clauses can be appended to the same or clause. When and and or clauses are interleaved, the `AND` operator binds tighter. A group clause can be used to make a query clearer and easier to understand. A matching document must match at least one of the given clauses. The following are all valid Litecene or clauses:
 
 * `hello OR world`
-* "My Fair Lady"~8 OR Pygmalion`
+* `"My Fair Lady"~8 OR Pygmalion`
 
 ### Not Clause
 
