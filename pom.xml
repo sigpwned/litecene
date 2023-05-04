@@ -3,7 +3,7 @@
 
     <groupId>com.sigpwned</groupId>
     <artifactId>litecene</artifactId>
-    <version>0.0.0-b3</version>
+    <version>0.0.0-b4-SNAPSHOT</version>
     <name>litecene</name>
     <inceptionYear>2022</inceptionYear>
     <description>A simple text search query language for Java 8+</description>
@@ -19,7 +19,7 @@
         <connection>scm:git:ssh://git@github.com/sigpwned/litecene.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/sigpwned/litecene.git</developerConnection>
         <url>https://github.com/sigpwned/litecene/tree/main</url>
-        <tag>v0.0.0-b3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <licenses>
