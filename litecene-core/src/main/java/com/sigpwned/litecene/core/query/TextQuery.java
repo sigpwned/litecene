@@ -20,6 +20,7 @@
 package com.sigpwned.litecene.core.query;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.joining;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
@@ -85,9 +86,15 @@ public class TextQuery extends Query {
   @Override
   @Generated
   public String toString() {
-    final int maxLen = 10;
-    return "TextQuery [terms="
-        + (terms != null ? terms.subList(0, Math.min(terms.size(), maxLen)) : null) + ", proximity="
-        + proximity + "]";
+    String result;
+    if (getTerms().size() == 1 && getProximity().isEmpty()) {
+      result = getTerms().get(0).toString();
+    } else {
+      result = "\"" + getTerms().stream().map(Objects::toString).collect(joining(" ")) + "\"";
+      if (getProximity().isPresent()) {
+        result = result + "~" + getProximity().getAsInt();
+      }
+    }
+    return result;
   }
 }

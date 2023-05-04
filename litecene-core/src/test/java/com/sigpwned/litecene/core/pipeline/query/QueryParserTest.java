@@ -30,12 +30,39 @@ import com.sigpwned.litecene.core.query.AndQuery;
 import com.sigpwned.litecene.core.query.ListQuery;
 import com.sigpwned.litecene.core.query.OrQuery;
 import com.sigpwned.litecene.core.query.TextQuery;
+import com.sigpwned.litecene.core.query.VacuousQuery;
 import com.sigpwned.litecene.core.stream.codepoint.StringCodePointSource;
 import com.sigpwned.litecene.core.stream.token.Tokenizer;
 
 public class QueryParserTest {
   public static Query parseQuery(String s) {
     return new QueryParser(new Tokenizer(new StringCodePointSource(s))).query();
+  }
+
+  @Test
+  public void shouldParseEmptySearch() {
+    Query q = parseQuery("");
+    assertThat(q, is(VacuousQuery.INSTANCE));
+  }
+
+  @Test
+  public void emptyToStringTest() {
+    String queryString = "";
+    String s = parseQuery(queryString).toString();
+    assertThat(s, is(queryString));
+  }
+
+  @Test
+  public void shouldParseStarQuery() {
+    Query q = parseQuery("*");
+    assertThat(q, is(new TextQuery(asList(Term.fromString("*")), OptionalInt.empty())));
+  }
+
+  @Test
+  public void starToStringTest() {
+    String queryString = "*";
+    String s = parseQuery(queryString).toString();
+    assertThat(s, is(queryString));
   }
 
   @Test
@@ -55,10 +82,24 @@ public class QueryParserTest {
   }
 
   @Test
+  public void booleanToStringTest() {
+    String queryString = "hello OR world AND foobar";
+    String s = parseQuery(queryString).toString();
+    assertThat(s, is(queryString));
+  }
+
+  @Test
   public void shouldParseProximity() {
     Query q = parseQuery("\"hello world\"~10");
     assertThat(q, is(new TextQuery(asList(Term.fromString("hello"), Term.fromString("world")),
         OptionalInt.of(10))));
+  }
+
+  @Test
+  public void proximityToStringTest() {
+    String queryString = "\"hello world\"~10";
+    String s = parseQuery(queryString).toString();
+    assertThat(s, is(queryString));
   }
 
   @Test
@@ -68,5 +109,12 @@ public class QueryParserTest {
         new ListQuery(asList(new TextQuery(asList(Term.fromString("hello")), OptionalInt.empty()),
             new TextQuery(asList(Term.fromString("world")), OptionalInt.empty()))),
         new TextQuery(asList(Term.fromString("foobar")), OptionalInt.empty())))));
+  }
+
+  @Test
+  public void termListToStringTest() {
+    String queryString = "hello world AND foobar";
+    String s = parseQuery(queryString).toString();
+    assertThat(s, is(queryString));
   }
 }

@@ -49,7 +49,12 @@ public class QueryParser implements QueryPipeline {
   }
 
   public Query query() {
-    Query result = query1();
+    Query result;
+    if (ts.peek().getType() == Token.Type.EOF) {
+      result = VacuousQuery.INSTANCE;
+    } else {
+      result = query1();
+    }
     if (ts.peek().getType() != Token.Type.EOF)
       throw new UnparsedTokenException();
     return result;
@@ -139,6 +144,7 @@ public class QueryParser implements QueryPipeline {
       }
       case EOF:
         throw new EofException();
+      // $CASES-OMITTED$
       default:
         throw new UnrecognizedTokenException();
     }

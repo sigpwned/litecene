@@ -91,6 +91,9 @@ public class Term {
   @Override
   @Generated
   public String toString() {
-    return "Term [text=" + text + ", wildcard=" + wildcard + "]";
+    String result = getText();
+    if (isWildcard())
+      result = result + "*";
+    return result;
   }
 }

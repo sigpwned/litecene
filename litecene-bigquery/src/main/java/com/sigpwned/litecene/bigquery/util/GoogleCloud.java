@@ -24,11 +24,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
+import com.google.common.io.BaseEncoding;
 
 public final class GoogleCloud {
   private GoogleCloud() {}
@@ -67,7 +69,12 @@ public final class GoogleCloud {
     try {
       if (System.getenv(CREDENTIAL_ENV_NAME) != null) {
         String text = System.getenv(CREDENTIAL_ENV_NAME);
-        if (text.startsWith("{")) {
+        if (text.startsWith("ey")) {
+          // This is base64-encoded compact JSON stuffed into an environment variable.
+          try (InputStream in = BaseEncoding.base64().decodingStream(new StringReader(text))) {
+            return GoogleCredentials.fromStream(in);
+          }
+        } else if (text.startsWith("{")) {
           // This is JSON stuffed into an environment variable.
           try (InputStream in = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8))) {
             return GoogleCredentials.fromStream(in);

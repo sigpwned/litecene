@@ -20,6 +20,7 @@
 package com.sigpwned.litecene.core.query;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.joining;
 import java.util.List;
 import java.util.Objects;
 import com.sigpwned.litecene.core.Query;
@@ -66,6 +67,6 @@ public class OrQuery extends Query {
   @Override
   @Generated
   public String toString() {
-    return "OrQuery [children=" + children + "]";
+    return getChildren().stream().map(Objects::toString).collect(joining(" OR "));
   }
 }
